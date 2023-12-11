@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DepartmentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,5 +32,15 @@ Route::group([
     Route::post('/update-pass',[AuthController::class,'updatePassword']);
     Route::get('/logout',[AuthController::class,'logout']);
 
+
+    //department api
+    Route::post("/department",[DepartmentController::class,'departmentAdd']);
+    Route::get("/department",[DepartmentController::class,'departmentGet']);
+    Route::get("/department/{id}",[DepartmentController::class,'departmentById']);
+    Route::put("/department/{id}",[DepartmentController::class,'departmentUpdate']);
+    //category api
+    Route::post('/category',[CategoryController::class,'categoryAdd']);
+    Route::get('/category/{id}',[CategoryController::class,'categoryById']);
+    Route::put('/category/{id}',[CategoryController::class,'categoryUpdate']);
 
 });
