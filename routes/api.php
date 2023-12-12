@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -43,4 +44,7 @@ Route::group([
     Route::get('/category/{id}',[CategoryController::class,'categoryById']);
     Route::put('/category/{id}',[CategoryController::class,'categoryUpdate']);
 
+    //student api
+    Route::post('/admin/add-student',[StudentController::class,'addStudent']);
+    Route::post('/admin/show-student',[StudentController::class,'showStudent']);
 });

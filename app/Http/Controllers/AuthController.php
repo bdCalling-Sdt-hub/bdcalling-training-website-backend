@@ -30,8 +30,6 @@ class AuthController extends Controller
             Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
                 return strpos($value, '.') !== false;
             });
-
-
             $validator = Validator::make($request->all(),[
                 'fullName' => 'required|string|min:2|max:100',
                 'email' => 'required|string|email|max:60|unique:users|contains_dot',
@@ -40,7 +38,6 @@ class AuthController extends Controller
                 'password' => 'required|string|min:6|confirmed',
                 'role' => 'nullable',
                 'otp' => 'nullable'
-
             ],[
                 'email.contains_dot' => 'without (.) Your email is invalid',
             ]);
@@ -60,8 +57,6 @@ class AuthController extends Controller
                 'user' => $user
             ]);
         }
-
-
    }
 
    public function emailVerified(Request $request){
@@ -72,7 +67,6 @@ class AuthController extends Controller
     if ($validator->fails()) {
         return response(['errors' => $validator->errors()], 422);
     }
-
     $user = User::where('otp', $request->otp)->first();
 
     if (!$user) {
