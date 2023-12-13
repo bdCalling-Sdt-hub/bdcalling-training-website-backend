@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -59,4 +60,9 @@ Route::group([
     Route::get('/admin/show-event',[EventController::class,'showEvent']);
     Route::get('/admin/single-event/{id}',[EventController::class,'singleEvent']);
     Route::post('/admin/update-event/{id}',[EventController::class,'updateEvent']);
+
+    //schedule api
+    Route::post('/admin/add-class-schedule',[ScheduleController::class,'addClassSchedule']);
+    Route::get('/admin/get-weekly-calender',[ScheduleController::class,'getWeeklyCalendar']);
+
 });
