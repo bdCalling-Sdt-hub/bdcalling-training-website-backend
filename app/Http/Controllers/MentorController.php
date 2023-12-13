@@ -15,7 +15,7 @@ class MentorController extends Controller
     //
     public function addMentor(Request $request){
 //        $user = User::where('first_name',$request->first_name)->first();
-//        $student = Mentor::where('email',$request->email)->first();
+//        $mentor = Mentor::where('email',$request->email)->first();
 
 
         $validator = Validator::make($request->all(),[
@@ -53,7 +53,6 @@ class MentorController extends Controller
         $mentor->course_name = $request->course_name;
         $mentor->save();
 
-
         return response()->json([
             'message' => 'Mentor add Successfully',
             'student' => $mentor,
@@ -78,7 +77,6 @@ class MentorController extends Controller
         }
         return $username;
     }
-
     public function saveImage($request){
         $image = $request->file('mentor_image');
         $imageName = rand().'.'.$image->getClientOriginalExtension();
@@ -87,8 +85,6 @@ class MentorController extends Controller
         $image->move($directory,$imageName);
         return $imgUrl;
     }
-
-
     public function showMentor(){
         $mentor = Mentor::get()->all();
         if($mentor){
@@ -100,11 +96,8 @@ class MentorController extends Controller
         }
     }
 
-
     public function singleMentor($id){
         $single_mentor = Mentor::find($id);
-
-
         if(!$single_mentor){
             return response()->json([
                 'message' => "user doesn't exist",

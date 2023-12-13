@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('register_id');
             $table->foreign('register_id')->references('id')->on('users');
             $table->text('mentor_image');
+            $table->string('email');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('designation');
@@ -24,9 +25,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         Schema::dropIfExists('mentors');

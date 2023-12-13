@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\MentorController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ use App\Http\Controllers\AuthController;
 Route::group([
 
     'middleware' => 'guest',
+    'namespace' => 'App\Http\Controllers',
 //    'prefix' => 'auth',
 
 
@@ -50,4 +52,11 @@ Route::group([
     Route::get('/admin/single-mentor/{id}',[MentorController::class,'singleMentor']);
     Route::post('/admin/update-mentor/{id}',[MentorController::class,'updateMentor']);
     Route::post('/admin/delete-mentor/{id}',[MentorController::class,'deleteMentor']);
+
+
+    //Event api
+    Route::post('/admin/add-event',[EventController::class,'addEvent']);
+    Route::get('/admin/show-event',[EventController::class,'showEvent']);
+    Route::get('/admin/single-event/{id}',[EventController::class,'singleEvent']);
+    Route::post('/admin/update-event/{id}',[EventController::class,'updateEvent']);
 });
