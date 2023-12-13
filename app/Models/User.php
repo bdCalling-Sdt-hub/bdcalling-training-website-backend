@@ -13,6 +13,16 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'register_id');
+    }
+
+    public function mentor()
+    {
+        return $this->hasOne(Mentor::class, 'register_id');
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
