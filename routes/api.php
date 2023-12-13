@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\VideoController;
+use App\Http\Controllers\CourseController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -43,4 +45,14 @@ Route::group([
     Route::get('/category/{id}',[CategoryController::class,'categoryById']);
     Route::put('/category/{id}',[CategoryController::class,'categoryUpdate']);
 
+
+    //course api
+
+    Route::post("/course",[CourseController::class,'courseAdd']);
+    Route::delete("/course/{id}",[CourseController::class,'courseDelete']);
+    Route::get("/course",[CourseController::class,'showAllCourse']);
+    //Route::put("/course/{id}",[CourseController::class,'courseUpdate']);
+
 });
+
+

@@ -22,7 +22,7 @@ class DepartmentController extends Controller
             }else{
                 $validator = Validator::make($request->all(),[
                     'department_name' => 'required|string|min:2|max:100',
-             ]);
+                ]);
 
                 if ($validator->fails()){
                     return response()->json(["errors"=>$validator->errors()],400);
