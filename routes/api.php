@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -51,7 +52,7 @@ Route::group([
     Route::post("/course",[CourseController::class,'courseAdd']);
     Route::delete("/course/{id}",[CourseController::class,'courseDelete']);
     Route::get("/course",[CourseController::class,'showAllCourse']);
-    //Route::put("/course/{id}",[CourseController::class,'courseUpdate']);
+    Route::put("/course/{id}",[CourseController::class,'courseUpdate']);
 
 });
 

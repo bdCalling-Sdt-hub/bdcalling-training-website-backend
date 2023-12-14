@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class CourseController extends Controller
 {
@@ -105,62 +106,78 @@ class CourseController extends Controller
   }
 
 
-//   public function courseUpdate(Request $request,$id){
+  public function courseUpdate(Request $request,$id){
 
-//     if($this->guard()->user()){
+    if($this->guard()->user()){
 
 
-//         $course = Course::find($id);
+        $course = Course::find($id);
 
-//     if (!$course) {
-//         return response()->json(['message' => 'Course not found'], 404);
-//     }
+    if (!$course) {
+        return response()->json(['message' => 'Course not found'], 404);
+    }
 
-//     $rules=[
-//         'courseName' => 'required|string|min:2|max:100',
-//         'language' => 'required|string|min:2|max:100',
-//         'courseDetails' => 'required|string|min:10|max:200',
-//         'startDate'=>'required | date',
-//         'courseTimeLength'=>'required',
-//         'price'=>'required',
-//         'mentorId'=>'required',
-//         'maxStudentLength'=>'required',
-//         'skillLevel'=>'required',
-//         'address'=>'required',
-//         'courseThumbnail'=>'image|mimes:jpeg,png,jpg,gif|max:2048'
-//     ];
+    $rules=[
+        'courseName' => 'required|string|min:2|max:100',
+        'language' => 'required|string|min:2|max:100',
+        'courseDetails' => 'required|string|min:10|max:200',
+        'startDate'=>'required | date',
+        'courseTimeLength'=>'required',
+        'price'=>'required',
+        'mentorId'=>'required',
+        'maxStudentLength'=>'required',
+        'skillLevel'=>'required',
+        'address'=>'required',
+        'courseThumbnail'=>'image|mimes:jpeg,png,jpg,gif|max:2048'
+    ];
 
-//     $validator = Validator::make($request->all(),$rules);
+    $validator = Validator::make($request->all(),$rules);
 
-//         if ($validator->fails()){
-//             return response()->json(["errors"=>$validator->errors()],400);
-//         }
+        if ($validator->fails()){
+            return response()->json(["errors"=>$validator->errors()],400);
+        }
 
-//         $updateFields = array_filter($request->only(array_keys($rules)));
+        $course->courseName=$request->courseName;
+        $course->language=$request->language;
+        $course->courseDetails=$request->courseDetails;
+        $course->startDate=$request->startDate;
+        $course->courseTimeLength=$request->courseTimeLength;
+        $course->price=$request->price;
+        $course->mentorId=$request->mentorId;
+        $course->maxStudentLength=$request->maxStudentLength;
+        $course->skillLevel=$request->skillLevel;
+        $course->address=$request->address;
 
-//         $course->fill($updateFields);
 
-//         if ($request->hasFile('courseThumbnail')) {
-//             $image = $request->file('courseThumbnail');
-//             $imageName = time() . '_' . $image->getClientOriginalName();
-//             $path = $image->storeAs('thumbnails', $imageName, 'public');
+        if ($request->hasFile('courseThumbnail')) {
+            $file = $request->file('courseThumbnail');
+            $destination='storage/courseimage/'.$course->courseThumbnail;
 
-//             // Remove the old image if it exists
-//             if ($course->courseThumbnail) {
-//                 Storage::disk('public')->delete($course->courseThumbnail);
-//             }
+            if(File::exists($destination)){
+                File::delete($destination);
+            }
 
-//             // Update the courseThumbnail field with the new image path
-//             $course->courseThumbnail = $path;
-//         }
+            $timeStamp = time(); // Current timestamp
+            $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('courseimage', $fileName, 'public');
 
-//         $course->save();
+            $filePath = 'storage/courseimage/' . $fileName;
+            $fileUrl = $filePath;
+            $course->courseThumbnail=$fileUrl;
 
-//     }else{
-//         return response()->json(["message"=>"You are unauthorized"],401);
-//     }
 
-//   }
+        }
+
+        $course->update();
+        return response()->json([
+            "message"=>"course updated successfully"
+        ],200);
+
+    }else{
+        return response()->json(["message"=>"You are unauthorized"],401);
+    }
+
+  }
 
 
 

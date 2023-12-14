@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\DemoMail;
-use Illuminate\Support\Facades\Redis;
+
 
 class AuthController extends Controller
 {
@@ -33,24 +33,19 @@ class AuthController extends Controller
             Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
                 return strpos($value, '.') !== false;
             });
-
-            $validator = Validator::make(
-                $request->all(),
-                [
-                    'fullName' => 'required|string|min:2|max:100',
-                    'email' => 'required|string|email|max:60|unique:users|contains_dot',
-                    'userName' => 'required|string|max:20|unique:users',
-                    'verified_email' => 'nullable',
-                    'password' => 'required|string|min:6|confirmed',
-                    'role' => 'nullable',
-                    'otp' => 'nullable',
-                ],
-                [
-                    'email.contains_dot' => 'without (.) Your email is invalid',
-                ],
-            );
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 400);
+            $validator = Validator::make($request->all(),[
+                'fullName' => 'required|string|min:2|max:100',
+                'email' => 'required|string|email|max:60|unique:users|contains_dot',
+                'userName' => 'required|string|max:20|unique:users',
+                'verified_email' => 'nullable',
+                'password' => 'required|string|min:6|confirmed',
+                'role' => 'nullable',
+                'otp' => 'nullable'
+            ],[
+                'email.contains_dot' => 'without (.) Your email is invalid',
+            ]);
+            if ($validator->fails()){
+                return response()->json($validator->errors(),400);
             }
             $user = User::create([
                 'fullName' => $request->fullName,
