@@ -15,8 +15,8 @@ class DepartmentController extends Controller
 
     public function departmentAdd(Request $request){
           //return response()->json(["data"=>$request->all()]);
-          if($this->guard()->user()){
-            $department=Department::where("department_name",$request->department_name)->first();
+          if($this->guard()->user()->userType=="admin"){
+            $department=Department::where("department_name",strtolower($request->department_name))->first();
             if($department){
                 return response()->json(["message"=>"This Department already exists"],409);
             }else{
@@ -28,7 +28,7 @@ class DepartmentController extends Controller
                     return response()->json(["errors"=>$validator->errors()],400);
                 }
                 $result = Department::create([
-                    'department_name' => $request->department_name,
+                    'department_name' => strtolower($request->department_name),
 
                 ]);
 
@@ -78,7 +78,7 @@ class DepartmentController extends Controller
 
 
     public function departmentUpdate(Request $request,$id){
-        if($this->guard()->user()){
+        if($this->guard()->user()->userType=="admin"){
             $validator = Validator::make($request->all(),[
                 'department_name' => 'required|string|min:2|max:100',
              ]);
@@ -94,12 +94,12 @@ class DepartmentController extends Controller
 
 
 
-                if($department["department_name"]===$request->department_name){
+                if($department["department_name"]===strtolower($request->department_name)){
                     return response()->json(["message"=>"Department already exists"],409);
                 }else{
-                    $department->department_name=$request->department_name;
+                    $department->department_name=strtolower($request->department_name);
                     $department->update();
-                    return response()->json(["message"=>"Category updated successfully","data"=>$department],200);
+                    return response()->json(["message"=>"Department updated successfully","data"=>$department],200);
                 }
 
             }

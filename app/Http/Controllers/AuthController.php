@@ -96,7 +96,7 @@ class AuthController extends Controller
         if ($token = $this->guard()->attempt($credentials)) {
             if (Auth::user()->verified_email == 0) {
                 return response()->json(['error' => 'Your email is not verified'], 401);
-            } elseif (Auth::user()->role == 'unknown') {
+            } elseif (Auth::user()->userType == 'unknown') {
                 return response()->json(['error' => 'Please wait some time to set your role by admin'], 401);
             } else {
                 return $this->respondWithToken($token);
