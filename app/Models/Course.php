@@ -21,6 +21,12 @@ class Course extends Model
         'maxStudentLength',
         'skillLevel',
         'address',
-        'courseThumbnail'
+        'courseThumbnail',
+        'status'
       ];
+
+      public function classes()
+      {
+          return $this->hasMany(Course::class, 'course_id');
+      }
 }

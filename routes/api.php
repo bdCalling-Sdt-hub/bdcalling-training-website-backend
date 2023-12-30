@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\ClassController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -53,6 +54,13 @@ Route::group([
     Route::delete("/course/{id}",[CourseController::class,'courseDelete']);
     Route::get("/course",[CourseController::class,'showAllCourse']);
     Route::put("/course/{id}",[CourseController::class,'courseUpdate']);
+    Route::delete("/course/{courseId}",[CourseController::class,'courseDelete']);
+
+    //class api
+
+    Route::post("/class",[ClassController::class,'addClass']);
+    Route::get("/class/{id}",[ClassController::class,'getAllClassByCourseId']);
+    Route::get("/class",[ClassController::class,'getAllClassByCourseIdAndBatch']);
 
 });
 

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string("skillLevel");
             $table->string("address");
             $table->string("courseThumbnail");
+            $table->string("status");
             $table->timestamps();
         });
     }

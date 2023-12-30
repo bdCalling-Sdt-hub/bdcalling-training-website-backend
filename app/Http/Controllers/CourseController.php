@@ -33,7 +33,8 @@ class CourseController extends Controller
                     'maxStudentLength'=>'required',
                     'skillLevel'=>'required',
                     'address'=>'required',
-                    'courseThumbnail'=>'required|file|max:6072'
+                    'courseThumbnail'=>'required|file|max:6072',
+                    'status'=>'required'
                 ]);
 
                 if ($validator->fails()){
@@ -67,7 +68,8 @@ class CourseController extends Controller
                         'maxStudentLength'=>$request->maxStudentLength,
                         'skillLevel'=>$request->skillLevel,
                         'address'=>$request->address,
-                        'courseThumbnail'=>$fileUrl
+                        'courseThumbnail'=>$fileUrl,
+                        'status'=>$request->status
 
                     ]);
 
@@ -146,7 +148,8 @@ class CourseController extends Controller
                     'maxStudentLength'=>'required',
                     'skillLevel'=>'required',
                     'address'=>'required',
-                    'courseThumbnail'=>'image|mimes:jpeg,png,jpg,gif|max:2048'
+                    'courseThumbnail'=>'image|mimes:jpeg,png,jpg,gif|max:2048',
+                    'status'=>'required'
                 ];
 
                 $validator = Validator::make($request->all(),$rules);
@@ -165,6 +168,7 @@ class CourseController extends Controller
                 $course->maxStudentLength=$request->maxStudentLength;
                 $course->skillLevel=$request->skillLevel;
                 $course->address=$request->address;
+                $course->status=$request->status;
 
 
                 if ($request->hasFile('courseThumbnail')) {
@@ -197,6 +201,24 @@ class CourseController extends Controller
 
   }
 
+
+    public function deleteCourse($courseId){
+
+        if($this->guard()->user()->userType=="admin"){
+            $course = Course::find($courseId);
+            if ($course) {
+                $course->delete();
+
+                return response()->json([
+                    "data"=>"Course deleted successfully"
+                ]);
+                // Related classes will also be deleted due to the onDelete('cascade') constraint
+            }
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+
+    }
 
 
 
