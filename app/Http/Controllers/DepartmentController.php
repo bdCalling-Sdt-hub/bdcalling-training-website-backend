@@ -15,7 +15,7 @@ class DepartmentController extends Controller
 
     public function departmentAdd(Request $request){
           //return response()->json(["data"=>$request->all()]);
-          if($this->guard()->user()->userType=="admin"){
+          if($this->guard()->user()->userType=="SUPER ADMIN"){
             $department=Department::where("department_name",strtolower($request->department_name))->first();
             if($department){
                 return response()->json(["message"=>"This Department already exists"],409);
@@ -78,7 +78,7 @@ class DepartmentController extends Controller
 
 
     public function departmentUpdate(Request $request,$id){
-        if($this->guard()->user()->userType=="admin"){
+        if($this->guard()->user()->userType=="SUPER ADMIN"){
             $validator = Validator::make($request->all(),[
                 'department_name' => 'required|string|min:2|max:100',
              ]);

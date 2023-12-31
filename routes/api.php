@@ -35,6 +35,7 @@ Route::group([
     Route::post('/reset-pass',[AuthController::class,'resetPassword']);
     Route::post('/update-pass',[AuthController::class,'updatePassword']);
     Route::get('/logout',[AuthController::class,'logout']);
+    Route::post('/approvel',[AuthController::class,'approvelByAdmin']);
 
 
     //department api
@@ -61,7 +62,8 @@ Route::group([
     Route::post("/class",[ClassController::class,'addClass']);
     Route::get("/class/{id}",[ClassController::class,'getAllClassByCourseId']);
     Route::get("/class",[ClassController::class,'getAllClassByCourseIdAndBatch']);
-
+    Route::get("/class-single/{classid}",[ClassController::class,'showClass']);
+    Route::put("/class/{classid}",[ClassController::class,'editClass']);
 });
 
 

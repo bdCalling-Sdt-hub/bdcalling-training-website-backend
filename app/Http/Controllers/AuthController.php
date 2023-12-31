@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Mentor;
+use App\Models\Student;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\DemoMail;
+use Illuminate\Validation\Rule;
 
 
 class AuthController extends Controller
@@ -19,7 +22,10 @@ class AuthController extends Controller
 
 
     {
-         $user = User::where('email', $request->email)
+
+
+
+        $user = User::where('email', $request->email)
             ->where('verified_email', 0)
             ->first();
 
@@ -39,21 +45,55 @@ class AuthController extends Controller
                 'userName' => 'required|string|max:20|unique:users',
                 'verified_email' => 'nullable',
                 'password' => 'required|string|min:6|confirmed',
-                'role' => 'nullable',
-                'otp' => 'nullable'
+                'userType' => ['required', Rule::in(['STUDENT','MENTOR','SUPER ADMIN','ADMIN'])],
+                'otp' => 'nullable',
+                'batch_no' => [
+                    Rule::requiredIf(function () use ($request) {
+                        return $request->userType === 'STUDENT';
+                    }),
+                    'integer', // Add other applicable rules for batch_no
+                ],
+                'department_name' => [
+                    Rule::requiredIf(function () use ($request) {
+                        return $request->userType === 'STUDENT';
+                    }),
+                    'string', // Add other applicable rules for department
+                ],
+
+                'registration_date' => [
+                    Rule::requiredIf(function () use ($request) {
+                        return $request->userType === 'STUDENT';
+                    }),
+                    'date', // Add other applicable rules for registration_date
+                ],
             ],[
                 'email.contains_dot' => 'without (.) Your email is invalid',
             ]);
             if ($validator->fails()){
                 return response()->json($validator->errors(),400);
             }
-            $user = User::create([
+
+            $userData = [
                 'fullName' => $request->fullName,
                 'userName' => $request->userName,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'userType' => $request->userType,
                 'otp' => $this->generateCode(),
-            ]);
+                // Add other common fields based on your requirements
+            ];
+
+
+
+            if ($request->userType === 'STUDENT') {
+                $userData['batch_no'] = $request->batch_no;
+                $userData['department_name'] = $request->department_name;
+                $userData['registration_date'] = $request->registration_date;
+                // Add other fields specific to 'STUDENT'
+            }
+
+            $user = User::create($userData);
+
             Mail::to($request->email)->send(new DemoMail($user->otp));
             return response()->json([
                 'message' => 'User registration Successfully',
@@ -96,8 +136,8 @@ class AuthController extends Controller
         if ($token = $this->guard()->attempt($credentials)) {
             if (Auth::user()->verified_email == 0) {
                 return response()->json(['error' => 'Your email is not verified'], 401);
-            } elseif (Auth::user()->userType == 'unknown') {
-                return response()->json(['error' => 'Please wait some time to set your role by admin'], 401);
+            } elseif (Auth::user()->approve == 0) {
+                return response()->json(['error' => 'Please wait some time to approval by super admin'], 401);
             } else {
                 return $this->respondWithToken($token);
             }
@@ -109,7 +149,7 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         $user = Auth::user();
-        $user->makeHidden(['otp', 'role', 'email_verified_at', 'verified_email']);
+        $user->makeHidden(['otp', 'userType', 'email_verified_at', 'verified_email','approve']);
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
@@ -137,7 +177,7 @@ class AuthController extends Controller
     {
         if ($this->guard()->user()) {
             $user = $this->guard()->user();
-            $user = $user->makeHidden(['otp', 'role', 'email_verified_at', 'verified_email']);
+            $user = $user->makeHidden(['otp', 'userType',"approve", 'email_verified_at', 'verified_email']);
             return response()->json($user);
         } else {
             return response()->json(['message' => 'You are unauthorized']);
@@ -220,6 +260,48 @@ class AuthController extends Controller
             $this->guard()->logout();
             return response()->json(['message' => 'User Logged Out successfully'], 200);
         } else {
+            return response()->json(['message' => 'You are unauthorized user'], 401);
+        }
+    }
+
+    public function approvelByAdmin(Request $request){
+          $user = $this->guard()->user();
+
+          $userType = $user->userType ?? null;
+
+        if ($userType=="SUPER ADMIN") {
+
+            $dataFind=User::find($request->id);
+            if($dataFind){
+              $dataFind->approve=true;
+              $dataFind->update();
+
+              if($dataFind->userType=="MENTOR"){
+                Mentor::create([
+                    "register_id"=>$dataFind->id
+                  ]);
+
+              }elseif($dataFind->userType=="STUDENT"){
+                Student::create([
+                    "register_id"=>$dataFind->id,
+                    "batch_no"=>$dataFind->batch_no,
+                    "department_name"=>$dataFind->department_name,
+                    "registration_date"=>$dataFind->registration_date
+                  ]);
+
+              }
+
+
+              return response()->json([
+                "message"=>"User approved successfully"
+              ],200);
+            }else{
+                return response()->json([
+                    "message"=>"Data not found"
+                  ],404);
+            }
+
+        }elseif($userType==null) {
             return response()->json(['message' => 'You are unauthorized user'], 401);
         }
     }

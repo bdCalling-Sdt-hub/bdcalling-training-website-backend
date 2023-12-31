@@ -9,6 +9,15 @@ class Mentor extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'register_id',
+        'mentor_image',
+        'first_name',
+        'last_name',
+        'designation',
+
+      ];
+
     public function user(){
         return $this->belongsTo(User::class,'register_id');
     }

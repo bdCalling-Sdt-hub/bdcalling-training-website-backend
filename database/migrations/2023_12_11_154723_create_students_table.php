@@ -18,9 +18,8 @@ return new class extends Migration
             $table->text('student_image');
             $table->string('full_name');
             $table->string('mobile_number');
-            $table->string('email')->unique();
             $table->integer('batch_no');
-            $table->string('registration_date');
+            $table->date('registration_date');
             $table->date('dob');
             $table->string('department_name');
             $table->string('blood_group');

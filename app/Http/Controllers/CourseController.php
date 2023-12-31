@@ -15,7 +15,7 @@ class CourseController extends Controller
 
     public function courseAdd(Request $request){
 
-        if($this->guard()->user()->userType=="admin"){
+        if($this->guard()->user()->userType=="SUPER ADMIN"){
             $course=Course::where("courseName",strtolower($request->courseName))->first();
 
             if($course){
@@ -88,7 +88,7 @@ class CourseController extends Controller
 
   public function courseDelete($id){
 
-    if($this->guard()->user()->userType=="admin"){
+    if($this->guard()->user()->userType=="SUPER ADMIN"){
 
         $dataFind=Course::where('id',$id)->get();
 
@@ -127,7 +127,7 @@ class CourseController extends Controller
 
   public function courseUpdate(Request $request,$id){
 
-    if($this->guard()->user()->userType=="admin"){
+    if($this->guard()->user()->userType=="SUPER ADMIN"){
 
 
                 $course = Course::find($id);
@@ -204,7 +204,7 @@ class CourseController extends Controller
 
     public function deleteCourse($courseId){
 
-        if($this->guard()->user()->userType=="admin"){
+        if($this->guard()->user()->userType=="SUPER ADMIN"){
             $course = Course::find($courseId);
             if ($course) {
                 $course->delete();
