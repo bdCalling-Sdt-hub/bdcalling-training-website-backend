@@ -13,17 +13,21 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('register_id');
-            $table->foreign('register_id')->references('id')->on('users');
-            $table->text('student_image');
-            $table->string('full_name');
-            $table->string('mobile_number');
-            $table->integer('batch_no');
-            $table->date('registration_date');
-            $table->date('dob');
-            $table->string('department_name');
-            $table->string('blood_group');
-            $table->string('address');
+            $table->string('fullName');
+            $table->string("userName");
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->text('studentImage')->nullable();
+            $table->string('mobileNumber')->nullable();
+            $table->integer('batchNo');
+            $table->date('registrationDate');
+            $table->date('dob')->nullable();
+            $table->string('departmentName');
+            $table->string('bloodGroup')->nullable();
+            $table->string('address')->nullable();
+            $table->text("verified_code");
+            $table->string('verified_email')->default(false);
+            $table->boolean("approve")->default(false);
             $table->timestamps();
         });
     }

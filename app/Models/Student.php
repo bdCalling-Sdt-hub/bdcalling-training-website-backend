@@ -4,23 +4,42 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Student extends Model
+class Student extends Authenticatable implements JWTSubject
 {
-    use HasFactory;
+    use  HasFactory, Notifiable;
     protected $fillable = [
-            'register_id',
-            'full_name',
-            'mobile_number',
-            'batch_no',
-            'registration_date',
+            'userName',
+            'fullName',
+            'mobileNumber',
+            'email',
+            'batchNo',
+            'password',
+            'studentImage',
+            'registrationDate',
             'dob',
-            'department_name',
-            'blood_group',
+            'departmentName',
+            'verified_email',
+            'verified_code',
+            'bloodGroup',
             'address'
     ];
 
     public function user(){
         return $this->belongsTo(User::class,'register_id');
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

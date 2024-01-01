@@ -217,7 +217,7 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user = Student::where('email', $request->email)->first();
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
         ]);

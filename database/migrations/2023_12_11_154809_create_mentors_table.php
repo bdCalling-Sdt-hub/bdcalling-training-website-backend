@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('mentors', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('register_id');
-            $table->foreign('register_id')->references('id')->on('users');
-            $table->text('mentor_image')->default("test");
-            $table->string('first_name')->default("test");
-            $table->string('last_name')->default("test");
-            $table->string('designation')->default("test");
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->text('mentor_image');
+            $table->string('email')->unique();
+            $table->string('designation');
+            $table->string('password');
+            $table->boolean("approve")->default(false);
             $table->timestamps();
         });
     }

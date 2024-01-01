@@ -35,16 +35,36 @@ return [
     |
     */
 
+
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+
         'api' => [
             'driver' => 'jwt',
-            'provider' => 'users',
+            'provider' => 'users', // Or specify your desired provider
         ],
+
+        'student_api' => [
+            'driver' => 'jwt',
+            'provider' => 'students', // Assuming you have a 'students' provider
+        ],
+        'mentor_api' => [
+            'driver' => 'jwt',
+            'provider' => 'mentors', // Assuming you have a 'mentors' provider
+        ]
+
+        // You can add more guards for other user types if needed
     ],
+
+    // 'guards' => [
+    //     'web' => [
+    //         'driver' => 'session',
+    //         'provider' => 'users',
+    //     ],
+    //     'api' => [
+    //         'driver' => 'jwt',
+    //         'provider' => 'users',
+    //     ],
+    // ],
 
     /*
     |--------------------------------------------------------------------------
@@ -67,6 +87,15 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+
+        'students' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Student::class, // Replace with your actual Student model
+        ],
+        'mentors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Mentor::class, // Replace with your actual Mentor model
         ],
 
         // 'users' => [
