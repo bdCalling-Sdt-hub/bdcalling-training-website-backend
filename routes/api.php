@@ -9,6 +9,8 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\MentorController;
 
 
 
@@ -50,9 +52,39 @@ Route::group([
 
 ], function ($router) {
 
-    Route::post("/mentor-register",[MentorController::class,"register"]);
+    Route::post("/mentor-login",[MentorController::class,"login"]);
+    Route::get("/mentor-profile",[MentorController::class,"loggedUserData"]);
 
 });
+
+
+Route::group([
+
+    ['middleware' => 'auth:api']
+
+
+], function ($router) {
+
+    Route::post("/admin-register",[AuthController::class,"register"]);
+    Route::post("/admin-login",[AuthController::class,"login"]);
+    Route::get("/admin-profile",[AuthController::class,"loggedUserData"]);
+
+
+    //
+
+    Route::post("/mentor-register",[MentorController::class,"register"]);
+    Route::post("/mentor-approve/{id}",[MentorController::class,"mentorAccountApproved"]);
+    Route::get("/mentor-profile/{id}",[MentorController::class,"mentorProfileShow"]);
+    Route::delete("/mentor/{id}",[MentorController::class,"mentorAccountDelete"]);
+    Route::put("/mentor/{id}",[MentorController::class,"mentorProfileEdit"]);
+    Route::get("/mentor-all",[MentorController::class,"getAllMentor"]);
+
+
+    //events
+
+    Route::resource('events', EventController::class);
+});
+
 
 
 

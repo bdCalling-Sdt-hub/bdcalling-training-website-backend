@@ -25,8 +25,8 @@ class Course extends Model
         'status'
       ];
 
-      public function classes()
-      {
-          return $this->hasMany(Course::class, 'course_id');
-      }
+    //   public function classes()
+    //   {
+    //       return $this->hasMany(Course::class, 'course_id');
+    //   }
 }

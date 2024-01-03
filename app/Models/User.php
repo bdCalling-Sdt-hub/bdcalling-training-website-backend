@@ -13,15 +13,15 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
-    public function student()
-    {
-        return $this->hasOne(Student::class, 'register_id');
-    }
+    // public function student()
+    // {
+    //     return $this->hasOne(Student::class, 'register_id');
+    // }
 
-    public function mentor()
-    {
-        return $this->hasOne(Mentor::class, 'register_id');
-    }
+    // public function mentor()
+    // {
+    //     return $this->hasOne(Mentor::class, 'register_id');
+    // }
 
     public function getJWTIdentifier()
     {
@@ -41,11 +41,8 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         "userType",
-        'otp',
-        'batch_no',
-        'registration_date',
-        'department_name',
-        'verified_email',
+        'image',
+        'mobileNumber'
     ];
 
 
