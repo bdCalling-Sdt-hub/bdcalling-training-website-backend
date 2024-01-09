@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
+use Illuminate\Support\Facades\File;
 
 class EventController extends Controller
 {
@@ -54,7 +55,8 @@ class EventController extends Controller
                 $validator = Validator::make($request->all(), [
                     'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5048',
                     'date' => 'required | date',
-                    'time' => 'required|date_format:H:i|after:08:00|before:22:00',
+                    'starttime' => 'required|date_format:H:i|after:08:00|before:22:00',
+                    'endtime' => 'required|date_format:H:i|after:08:00|before:22:00',
                     'officeLocation' => 'required|string',
                     'courseName' => 'required'
                 ]);
@@ -79,7 +81,8 @@ class EventController extends Controller
                     $eventData = [
                         'image' => $fileUrl,
                         'date' => $request->date,
-                        'time' => $request->time,
+                        'starttime' => $request->starttime,
+                        'endtime'=>$request->endtime,
                         'officeLocation' => $request->officeLocation,
                         'courseName' => $request->courseName,
 
@@ -103,7 +106,7 @@ class EventController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+  public function show(string $id)
     {
         //
 
@@ -144,7 +147,61 @@ class EventController extends Controller
 
             if ($user->userType === "SUPER ADMIN") {
 
-                
+                $event = Event::find($id);
+
+                if (!$event) {
+                    return response()->json(['message' => 'Event not found'], 404);
+                }
+
+                $rules=[
+                    'date' => 'required | date',
+                    'starttime' => 'required|date_format:H:i|after:08:00|before:22:00',
+                    'endtime' => 'required|date_format:H:i|after:08:00|before:22:00',
+                    'officeLocation' => 'required|string',
+                    'courseName' => 'required'
+                ];
+
+                $validator = Validator::make($request->all(),$rules);
+
+                if ($validator->fails()){
+                    return response()->json(["errors"=>$validator->errors()],400);
+                }
+
+                $event->date=$request->date;
+                $event->starttime=$request->starttime;
+                $event->endtime=$request->endtime;
+                $event->officeLocation=$request->officeLocation;
+                $event->courseName=$request->courseName;
+
+
+
+                if ($request->hasFile('image')) {
+                    $file = $request->file('image');
+                    $destination='storage/eventImage/'.$event->image;
+
+                    if(File::exists($destination)){
+                        File::delete($destination);
+                    }
+
+                    $timeStamp = time(); // Current timestamp
+                    $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('eventImage', $fileName, 'public');
+
+                    $filePath = 'storage/eventImage/' . $fileName;
+                    $fileUrl = $filePath;
+                    $event->image=$fileUrl;
+
+
+                }
+
+                $event->update();
+                return response()->json([
+                    "message"=>"Event updated successfully"
+                ],200);
+
+
+            }else{
+                return response()->json(['message' => 'You are unauthorized user'], 401);
             }
         }else {
             return response()->json(['message' => 'You are unauthorized user'], 401);
@@ -159,5 +216,35 @@ class EventController extends Controller
     public function destroy(string $id)
     {
         //
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
+                $event = Event::find($id);
+
+                if ($event) {
+                    $event->delete();
+
+                    return response()->json([
+                        "message"=>"Event deleted successfully"
+                    ],200);
+                    // Related classes will also be deleted due to the onDelete('cascade') constraint
+                }else{
+                    return response()->json(['message' => 'Event not found'], 404);
+                }
+
+
+            }else{
+                return response()->json(['message' => 'You are unauthorized user'], 401);
+            }
+
+
+
+        }else {
+            return response()->json(['message' => 'You are unauthorized user'], 401);
+        }
+
     }
 }

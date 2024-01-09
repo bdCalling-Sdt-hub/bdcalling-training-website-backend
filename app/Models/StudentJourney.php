@@ -5,19 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Event extends Model
+class StudentJourney extends Model
 {
     use HasFactory;
 
-
     protected $fillable = [
-        'image',
-        'date',
-        'starttime',
-        'endtime',
-        'officeLocation',
-        'courseName'
-
-      ];
-
+        'thumbnail',
+        'video'
+       ];
 }

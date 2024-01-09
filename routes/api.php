@@ -10,9 +10,10 @@ use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MentorController;
-
-
+use App\Http\Controllers\StudentJourneyController;
+use App\Models\StudentJourney;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,14 +35,14 @@ Route::group([
 
 ], function ($router) {
 
-    Route::post("/student-register",[StudentController::class,"register"]);
-    Route::post("/student-verified-email",[StudentController::class,"emailVerified"]);
-    Route::post("/student-login",[StudentController::class,"login"]);
-    Route::get('/student-profile',[StudentController::class,'loggedUserData']);
-    Route::post('/student-forget-pass',[StudentController::class,'forgetPassword']);
-    Route::post('/student-verified-checker',[StudentController::class,'emailVerifiedForResetPass']);
-    Route::post('/student-reset-password',[StudentController::class,'resetPassword']);
-    Route::post('/student-update-pass',[StudentController::class,'updatePassword']);
+    Route::post("/students/register", [StudentController::class, "register"]);
+    Route::post("/students/verified-email", [StudentController::class, "emailVerified"]);
+    Route::post("/students/login", [StudentController::class, "login"]);
+    Route::get('/students/profile', [StudentController::class, 'loggedUserData']);
+    Route::post('/students/forget-pass', [StudentController::class, 'forgetPassword']);
+    Route::post('/students/verified-checker', [StudentController::class, 'emailVerifiedForResetPass']);
+    Route::post('/students/reset-password', [StudentController::class, 'resetPassword']);
+    Route::post('/students/update-pass', [StudentController::class, 'updatePassword']);
 });
 
 
@@ -52,9 +53,8 @@ Route::group([
 
 ], function ($router) {
 
-    Route::post("/mentor-login",[MentorController::class,"login"]);
-    Route::get("/mentor-profile",[MentorController::class,"loggedUserData"]);
-
+    Route::post("/mentors/login", [MentorController::class, "login"]);
+    Route::get("/mentors/profile", [MentorController::class, "loggedUserData"]);
 });
 
 
@@ -65,24 +65,26 @@ Route::group([
 
 ], function ($router) {
 
-    Route::post("/admin-register",[AuthController::class,"register"]);
-    Route::post("/admin-login",[AuthController::class,"login"]);
-    Route::get("/admin-profile",[AuthController::class,"loggedUserData"]);
+    Route::post("/admins/register", [AuthController::class, "register"]);
+    Route::post("/admins/login", [AuthController::class, "login"]);
+    Route::get("/admins/profile", [AuthController::class, "loggedUserData"]);
 
 
     //
 
-    Route::post("/mentor-register",[MentorController::class,"register"]);
-    Route::post("/mentor-approve/{id}",[MentorController::class,"mentorAccountApproved"]);
-    Route::get("/mentor-profile/{id}",[MentorController::class,"mentorProfileShow"]);
-    Route::delete("/mentor/{id}",[MentorController::class,"mentorAccountDelete"]);
-    Route::put("/mentor/{id}",[MentorController::class,"mentorProfileEdit"]);
-    Route::get("/mentor-all",[MentorController::class,"getAllMentor"]);
+    Route::post("/mentors/register", [MentorController::class, "register"]);
+    Route::post("/mentors/approve/{id}", [MentorController::class, "mentorAccountApproved"]);
+    Route::get("/mentors/profile/{id}", [MentorController::class, "mentorProfileShow"]);
+    Route::delete("/mentors/{id}", [MentorController::class, "mentorAccountDelete"]);
+    Route::put("/mentors/{id}", [MentorController::class, "mentorProfileEdit"]);
+    Route::get("/mentors/all", [MentorController::class, "getAllMentor"]);
 
 
     //events
 
     Route::resource('events', EventController::class);
+    Route::resource('galleries', GalleryController::class);
+    Route::resource('journies', StudentJourneyController::class);
 });
 
 
@@ -141,5 +143,3 @@ Route::group([
 //     Route::get("/class-single/{classid}",[ClassController::class,'showClass']);
 //     Route::put("/class/{classid}",[ClassController::class,'editClass']);
 // });
-
-
