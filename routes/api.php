@@ -85,6 +85,15 @@ Route::group([
     Route::resource('events', EventController::class);
     Route::resource('galleries', GalleryController::class);
     Route::resource('journies', StudentJourneyController::class);
+
+
+
+    //department api route
+    Route::post("/department",[DepartmentController::class,'departmentAdd']);
+    Route::get("/department",[DepartmentController::class,'departmentGet']);
+    Route::get("/department/{id}",[DepartmentController::class,'departmentById']);
+    Route::put("/department/{id}",[DepartmentController::class,'departmentUpdate']);
+
 });
 
 

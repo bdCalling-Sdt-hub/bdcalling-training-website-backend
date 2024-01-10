@@ -26,9 +26,7 @@ class StudentJourneyController extends Controller
                 "message" => "Don't have any video in student journey"
             ], 404);
         }
-
-
-    }
+   }
 
     /**
      * Show the form for creating a new resource.
