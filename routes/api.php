@@ -129,6 +129,9 @@ Route::group([
 });
 
 
+Route::get("all/mentors",[MentorController::class,"allMentors"]);
+
+
 
 
 

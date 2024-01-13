@@ -262,6 +262,8 @@ class MentorController extends Controller
         }
     }
 
+//get all mentor for super admin
+
  public function getAllMentor(){
         $user = Auth::guard('api')->user();
 
@@ -281,4 +283,24 @@ class MentorController extends Controller
             return response()->json(['message' => 'You are unauthorized'], 401);
         }
     }
+
+    //get all mentor without any token
+     public function allMentors(){
+
+               $allMentor=Mentor::get();
+
+               if($allMentor){
+
+                return response()->json([
+                    "message"=>"All mentors retrived successfully",
+                    "data"=>$allMentor
+                   ],200);
+
+               }else{
+                return response()->json(['message' => 'Record not found'], 404);
+               }
+
+
+    }
+
 }
