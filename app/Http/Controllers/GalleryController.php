@@ -7,20 +7,29 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Gallery;
 use Illuminate\Support\Facades\File;
+use Jenssegers\Agent\Agent;
 
 class GalleryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // $agent = new Agent();
+        // $browser = $agent->browser();
+        // $device = $agent->device();
+        // $platform = $agent->platform();
+        // $version = $agent->version($browser);
+        // $clientIP = $request->ip();
+        // $user_agent = $request->userAgent();
         //
         $allGallery = Gallery::orderBy('created_at', 'desc')->get();
         if ($allGallery) {
             return response()->json([
                 "message" => "Retrived all gallery successfully",
-                "data" =>$allGallery
+                "data" =>$allGallery,
+
             ], 200);
         } else {
             return response()->json([

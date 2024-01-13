@@ -15,6 +15,7 @@ use App\Mail\DemoMail;
 use Illuminate\Validation\Rule;
 
 
+
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -78,7 +79,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-      
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string|min:6',
@@ -103,6 +104,7 @@ class AuthController extends Controller
 
     protected function respondWithToken($token)
     {
+
         $user = Auth::user();
         $user->makeHidden(['userType', 'email_verified_at', 'verified_email']);
         return response()->json([
@@ -111,7 +113,9 @@ class AuthController extends Controller
             'expires_in' => auth()
                 ->factory()
                 ->getTTL(), //hour*seconds
-            'user' => $user,
+            'user' => $user
+
+
         ]);
     }
 
@@ -182,7 +186,10 @@ class AuthController extends Controller
     public function updatePassword(Request $request)
     {
         $user = $this->guard()->user();
+
         if ($user) {
+            if ($user->userType === "SUPER ADMIN") {
+
             $validator = Validator::make($request->all(), [
                 'current_password' => 'required|string',
                 'new_password' => 'required|string|min:6|different:current_password',
@@ -198,8 +205,14 @@ class AuthController extends Controller
             $user->update(['password' => Hash::make($request->new_password)]);
 
             return response(['message' => 'Password updated successfully'], 200);
+
+
+        }else {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
     }
 
@@ -213,43 +226,53 @@ class AuthController extends Controller
         }
     }
 
-    public function approvelByAdmin(Request $request)
-    {
-        $user = $this->guard()->user();
+    // public function approvelByAdmin(Request $request)
+    // {
+    //     $user = $this->guard()->user();
 
-        $userType = $user->userType ?? null;
+    //     $userType = $user->userType ?? null;
 
-        if ($userType == "SUPER ADMIN") {
+    //     if ($userType == "SUPER ADMIN") {
 
-            $dataFind = User::find($request->id);
-            if ($dataFind) {
-                $dataFind->approve = true;
-                $dataFind->update();
+    //         $dataFind = User::find($request->id);
+    //         if ($dataFind) {
+    //             $dataFind->approve = true;
+    //             $dataFind->update();
 
-                if ($dataFind->userType == "MENTOR") {
-                    Mentor::create([
-                        "register_id" => $dataFind->id
-                    ]);
-                } elseif ($dataFind->userType == "STUDENT") {
-                    Student::create([
-                        "register_id" => $dataFind->id,
-                        "batch_no" => $dataFind->batch_no,
-                        "department_name" => $dataFind->department_name,
-                        "registration_date" => $dataFind->registration_date
-                    ]);
-                }
+    //             if ($dataFind->userType == "MENTOR") {
+    //                 Mentor::create([
+    //                     "register_id" => $dataFind->id
+    //                 ]);
+    //             } elseif ($dataFind->userType == "STUDENT") {
+    //                 Student::create([
+    //                     "register_id" => $dataFind->id,
+    //                     "batch_no" => $dataFind->batch_no,
+    //                     "department_name" => $dataFind->department_name,
+    //                     "registration_date" => $dataFind->registration_date
+    //                 ]);
+    //             }
 
 
-                return response()->json([
-                    "message" => "User approved successfully"
-                ], 200);
-            } else {
-                return response()->json([
-                    "message" => "Data not found"
-                ], 404);
-            }
-        } elseif ($userType == null) {
-            return response()->json(['message' => 'You are unauthorized user'], 401);
-        }
+    //             return response()->json([
+    //                 "message" => "User approved successfully"
+    //             ], 200);
+    //         } else {
+    //             return response()->json([
+    //                 "message" => "Data not found"
+    //             ], 404);
+    //         }
+    //     } elseif ($userType == null) {
+    //         return response()->json(['message' => 'You are unauthorized user'], 401);
+    //     }
+    // }
+
+
+    public function removeOtherdevice(){
+        $user=Auth::guard('api')->user();
+        Auth::guard('api')->logoutOtherDevices($user->id);
+        return response()->json([
+            "id"=>$user->id,
+            "message"=>"logout successfully from other device"
+        ]);
     }
 }

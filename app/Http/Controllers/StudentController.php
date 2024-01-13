@@ -245,6 +245,40 @@ class StudentController extends Controller
     }
 
 
+    //all student list for super admin dashboard
+    public function allStudentList(){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
+               $allStudent=Student::where('verified_email',1)->get();
+               if( $allStudent){
+                return response()->json([
+                   "message"=>"All student data retrived successfully",
+                   "data"=>$allStudent
+                ],200);
+               }else{
+                  return response()->json([
+                    "message"=>"Record not found"
+                  ],404);
+               }
+
+
+            } else{
+                return response()->json(["message"=>"You are unauthorized"],401);
+            }
+        } else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+
+    }
+
+
+
+
+// student add by super admin
 
 
 

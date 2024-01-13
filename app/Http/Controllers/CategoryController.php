@@ -14,7 +14,11 @@ class CategoryController extends Controller
 
     public function categoryAdd(Request $request){
 
-        if($this->guard()->user()->userType=="SUPER ADMIN"){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
 
             $category=Category::where("category_name",strtolower($request->category_name))
             ->where("department_id",$request->department_id)
@@ -39,6 +43,9 @@ class CategoryController extends Controller
 
                 return response()->json(["message"=>"Category created successfully"],200);
             }
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
 
         }else{
             return response()->json(["message"=>"You are unauthorized"],401);
@@ -48,7 +55,7 @@ class CategoryController extends Controller
     public function categoryById($id){
 
         //return response()->json(["data"=>$id,"message"=>"Record found successfully"],200);
-        if($this->guard()->user()){
+
            $category=Category::find($id);
 
            if($category){
@@ -56,14 +63,16 @@ class CategoryController extends Controller
            }else{
             return response()->json(["message"=>"Record not found"],404);
            }
-        }else{
-            return response()->json(["message"=>"You are unauthorized"],401);
-        }
+
     }
 
     public function categoryUpdate(Request $request,$id){
 //return response()->json(["data"=>$request->category_name]);
-        if($this->guard()->user()->userType=="SUPER ADMIN"){
+$user = Auth::guard('api')->user();
+
+if ($user) {
+
+    if ($user->userType === "SUPER ADMIN") {
             $validator = Validator::make($request->all(),[
                 'category_name' => 'required|string|min:2|max:100',
              ]);
@@ -87,9 +96,15 @@ class CategoryController extends Controller
                     return response()->json(["message"=>"Category updated successfully","data"=>$category],200);
                 }
 
+
+
             }else{
                 return response()->json(["message"=>"Category doesn't exists"],409);
             }
+
+        }else{
+            return response()->json(["message"=>"Category doesn't exists"],409);
+        }
         }else{
             return response()->json(["message"=>"You are unauthorized"],401);
         }

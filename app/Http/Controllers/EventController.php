@@ -92,8 +92,8 @@ class EventController extends Controller
                     $event = Event::create($eventData);
                     return response()->json([
                         'message' => 'Event add successfully',
-                        'user' => $eventData,
-                    ]);
+
+                    ],200);
                 }
             } else {
                 return response()->json(['message' => 'You are unauthorized user'], 401);

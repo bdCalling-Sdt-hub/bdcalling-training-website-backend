@@ -13,7 +13,13 @@ class ClassController extends Controller
     //
 
    public function addClass(Request $request){
-     if($this->guard()->user()->userType=="SUPER ADMIN"){
+
+   $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
         $validator = Validator::make($request->all(),[
             'course_id'=> 'required',
             'batch' => 'required',
@@ -55,6 +61,14 @@ class ClassController extends Controller
         return response()->json([
             "message"=>"Class added successfully"
         ]);
+
+
+    }else{
+        return response()->json(["message"=>"You are unauthorized"],401);
+    }
+
+
+
 
     }else{
         return response()->json(["message"=>"You are unauthorized"],401);
@@ -135,7 +149,10 @@ class ClassController extends Controller
 
     public function editClass(Request $request,$classid){
 
-        if($this->guard()->user()->userType=="SUPER ADMIN"){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+            if ($user->userType === "SUPER ADMIN") {
 
             $validator = Validator::make($request->all(),[
                 'course_id'=> 'required',
@@ -176,12 +193,16 @@ class ClassController extends Controller
                         "data"=>$class
                         ],200);
                 }
+
+
             }else{
                 return response()->json(["message"=>"Class not found"],404);
             }
 
 
-
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
 
 
 

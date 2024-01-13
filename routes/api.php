@@ -9,6 +9,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\ClassScheduleController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MentorController;
@@ -68,7 +69,9 @@ Route::group([
     Route::post("/admins/register", [AuthController::class, "register"]);
     Route::post("/admins/login", [AuthController::class, "login"]);
     Route::get("/admins/profile", [AuthController::class, "loggedUserData"]);
+    Route::post('/admins/update-pass',[AuthController::class,'updatePassword']);
 
+    Route::post('/admins/removedevice',[AuthController::class,'removeOtherdevice']);
 
     //
 
@@ -85,6 +88,8 @@ Route::group([
     Route::resource('events', EventController::class);
     Route::resource('galleries', GalleryController::class);
     Route::resource('journies', StudentJourneyController::class);
+    Route::resource('schedules', ClassScheduleController::class);
+    Route::post("/schedules/department/batch",[ClassScheduleController::class,"scheduleShowByCatAndBatch"]);
 
 
 
@@ -93,6 +98,33 @@ Route::group([
     Route::get("/department",[DepartmentController::class,'departmentGet']);
     Route::get("/department/{id}",[DepartmentController::class,'departmentById']);
     Route::put("/department/{id}",[DepartmentController::class,'departmentUpdate']);
+
+    //category api route
+
+    Route::post('/category',[CategoryController::class,'categoryAdd']);
+    Route::get('/category/{id}',[CategoryController::class,'categoryById']);
+    Route::put('/category/{id}',[CategoryController::class,'categoryUpdate']);
+
+
+    //course api route
+
+    Route::post("/course",[CourseController::class,'courseAdd']);
+    Route::get("/course",[CourseController::class,'showAllCourse']);
+    Route::put("/course/{id}",[CourseController::class,'courseUpdate']);
+    Route::delete("/course/{courseId}",[CourseController::class,'deleteCourse']);
+
+
+    //class api
+
+    Route::post("/class",[ClassController::class,'addClass']);
+    Route::get("/class/{id}",[ClassController::class,'getAllClassByCourseId']);
+    Route::get("/class",[ClassController::class,'getAllClassByCourseIdAndBatch']);
+    Route::get("/class-single/{classid}",[ClassController::class,'showClass']);
+    Route::put("/class/{classid}",[ClassController::class,'editClass']);
+
+
+    //all student list route
+    Route::get("/all/student",[StudentController::class,"allStudentList"]);
 
 });
 
