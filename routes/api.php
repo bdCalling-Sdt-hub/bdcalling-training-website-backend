@@ -71,7 +71,8 @@ Route::group([
     Route::get("/admins/profile", [AuthController::class, "loggedUserData"]);
     Route::post('/admins/update-pass',[AuthController::class,'updatePassword']);
 
-    Route::post('/admins/removedevice',[AuthController::class,'removeOtherdevice']);
+
+
 
     //
 
@@ -123,8 +124,15 @@ Route::group([
     Route::put("/class/{classid}",[ClassController::class,'editClass']);
 
 
-    //all student list route
-    Route::get("/all/student",[StudentController::class,"allStudentList"]);
+    //student crud api by super admin
+    Route::get("/admins/students/approve/{id}",[StudentController::class,'accountApproveByAdmin']);
+    Route::get("/admins/students/unapprove/{id}",[StudentController::class,'accountUnapproveByAdmin']);
+
+    Route::get("admins/students/all",[StudentController::class,"allStudentList"]);
+
+    Route::post("/admins/students/add",[StudentController::class,"addStudent"]);
+    Route::delete("/admins/students/delete/{id}",[StudentController::class,"deleteStudent"]);
+    Route::get("/admins/students/show/{id}",[StudentController::class,"showStudent"]);
 
 });
 

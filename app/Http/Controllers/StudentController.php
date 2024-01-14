@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Student;
 
 use Illuminate\Support\Str;
+use App\Models\Category;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class StudentController extends Controller
@@ -46,8 +48,6 @@ class StudentController extends Controller
                 'userName' => 'required|string|max:20|unique:students',
                 'email' => 'required|string|email|max:60|unique:students|contains_dot',
                 'password' => 'required|string|min:6|confirmed',
-                'batchNo' => 'required',
-                'departmentName' => 'required',
                 'registrationDate' => 'required',
                 'verified_email' => 'nullable',
             ], [
@@ -62,9 +62,7 @@ class StudentController extends Controller
                 'userName' => $request->userName,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'batchNo' => $request->batchNo,
                 'registrationDate' => $request->registrationDate,
-                'departmentName' => $request->departmentName,
                 'verified_code' => Str::random(40)
             ];
 
@@ -130,7 +128,11 @@ class StudentController extends Controller
         if ($this->guard()->user()) {
             $user = $this->guard()->user();
             $user = $user->makeHidden(["password", "approve", 'email_verified_at', 'verified_email', "verified_code"]);
-            return response()->json($user);
+            $student = Student::with('category')->find($user['id']);
+            $student=$student->makeHidden(["password", "approve", 'email_verified_at', 'verified_email', "verified_code"]);
+            return response()->json([
+                "user"=>$student
+            ]);
         } else {
             return response()->json(['message' => 'You are unauthorized']);
         }
@@ -233,8 +235,8 @@ class StudentController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()
                 ->factory()
-                ->getTTL(), //hour*seconds
-            'user' => $user,
+                ->getTTL() //hour*seconds
+
         ]);
     }
 
@@ -245,7 +247,75 @@ class StudentController extends Controller
     }
 
 
-    //all student list for super admin dashboard
+
+    public function accountApproveByAdmin($id){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
+                $dataFind = Student::find($id);
+                if($dataFind){
+                    $dataFind->approve = true;
+                    $dataFind->update();
+                    return response()->json([
+                        "message"=>"Student account approve successfully"
+                    ],200);
+
+                }else{
+                    return response()->json([
+                        "message"=>"Record not found"
+                    ],404);
+
+                }
+
+            }else{
+                return response()->json(["message"=>"You are unauthorized"],401);
+            }
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+
+    }
+
+
+    public function accountUnapproveByAdmin($id){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
+                $dataFind = Student::find($id);
+                if($dataFind){
+                    $dataFind->approve = false;
+                    $dataFind->update();
+                    return response()->json([
+                        "message"=>"Student account inactive successfully"
+                    ],200);
+
+                }else{
+                    return response()->json([
+                        "message"=>"Record not found"
+                    ],404);
+
+                }
+
+            }else{
+                return response()->json(["message"=>"You are unauthorized"],401);
+            }
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+
+    }
+
+///////////////////////////////////////////////////
+
+
+
+    //all student list for super admin
     public function allStudentList(){
         $user = Auth::guard('api')->user();
 
@@ -253,7 +323,8 @@ class StudentController extends Controller
 
             if ($user->userType === "SUPER ADMIN") {
 
-               $allStudent=Student::where('verified_email',1)->get();
+               $allStudent=Student::where('verified_email',1)->with(['category'])->get();
+               $allStudent->makeHidden(['verified_code', 'email_verified_at', 'verified_email', 'approve', 'password']);
                if( $allStudent){
                 return response()->json([
                    "message"=>"All student data retrived successfully",
@@ -280,7 +351,163 @@ class StudentController extends Controller
 
 // student add by super admin
 
+public function addStudent(Request $request){
 
+    $user = Auth::guard('api')->user();
+
+    if ($user) {
+        if ($user->userType === "SUPER ADMIN") {
+            Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
+                return strpos($value, '.') !== false;
+            });
+
+            $validator = Validator::make($request->all(), [
+                'fullName' => 'required|string|min:2|max:100',
+                'userName' => 'required|string|max:20|unique:students',
+                'email' => 'required|string|email|max:60|unique:students|contains_dot',
+                'password' => 'required|string|min:6|confirmed',
+                'category_id' => [
+                    'required',
+                    function ($attribute, $value, $fail) {
+                        // Custom validation rule for foreign key existence
+                        $exists = \DB::table('categories')->where('id', $value)->exists();
+
+                        if (!$exists) {
+                           // $fail("The selected $attribute is invalid.");
+                            $fail("The selected course name is invalid.");
+                        }
+                    },
+                ],
+                'mobileNumber'=>'required',
+                'dob'=>'required',
+                'batchNo' =>'required',
+                'registrationDate' => 'required',
+                'verified_email' => 'nullable',
+            ], [
+                'email.contains_dot' => 'without (.) Your email is invalid',
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+
+            if ($request->file('image')) {
+                $file = $request->file('image');
+
+
+                $timeStamp = time(); // Current timestamp
+                $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('image', $fileName, 'public');
+
+                $filePath = '/storage/image/' . $fileName;
+                $fileUrl = $filePath;
+
+
+                $userData = [
+                    'fullName' => $request->fullName,
+                    'userName' => $request->userName,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'mobileNumber' => $request->mobileNumber,
+                    'batchNo' => $request->batchNo,
+                    'studentImage' => $fileUrl,
+                    'registrationDate'=>$request->registrationDate,
+                    'category_id'=>$request->category_id,
+                    'approve'=>1,
+                    'verified_email'=>1,
+                    'dob'=>$request->dob?$request->dob:null,
+                    'bloodGroup'=>$request->bloodGroup?$request->bloodGroup:null,
+                    'address'=>$request->address,
+                 ];
+
+
+
+
+
+                $user = Student::create($userData);
+                return response()->json([
+                    'message' => 'Student created Successfully',
+
+                ]);
+            }else{
+                return response()->json([
+                   "message"=>"Please select your profile image"
+                ],400);
+            }
+
+        }else{
+                return response()->json(["message"=>"You are unauthorized"],401);
+            }
+    }else{
+        return response()->json(["message"=>"You are unauthorized"],401);
+    }
+
+}
+
+//student delete by super admin
+
+public function deleteStudent($id){
+
+    $user = Auth::guard('api')->user();
+
+    if ($user) {
+        if ($user->userType === "SUPER ADMIN") {
+
+            $student = Student::find($id);
+            if($student){
+                $student->delete();
+                return response()->json([
+                    "message"=>"Student deleted successfully"
+                ],200);
+            }else{
+                return response()->json([
+                    "message"=>"Record not found"
+                ],404);
+            }
+
+
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+    }else{
+        return response()->json(["message"=>"You are unauthorized"],401);
+    }
+
+}
+
+// individual student show by super admin access
+
+public function showStudent($id){
+    $user = Auth::guard('api')->user();
+
+    if ($user) {
+        if ($user->userType === "SUPER ADMIN") {
+            $student = Student::find($id);
+            if($student){
+
+                return response()->json([
+                    "user"=>$student
+                ],200);
+            }else{
+                return response()->json([
+                    "message"=>"Record not found"
+                ],404);
+            }
+
+
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+    }else{
+        return response()->json(["message"=>"You are unauthorized"],401);
+    }
+
+}
+
+//student update by super admin
+
+public function updateStudent(){
+
+}
 
 
 

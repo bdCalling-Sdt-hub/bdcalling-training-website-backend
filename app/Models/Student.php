@@ -21,15 +21,17 @@ class Student extends Authenticatable implements JWTSubject
             'studentImage',
             'registrationDate',
             'dob',
-            'departmentName',
+            'category_id',
             'verified_email',
             'verified_code',
             'bloodGroup',
-            'address'
+            'address',
+            'approve'
     ];
 
-    public function user(){
-        return $this->belongsTo(User::class,'register_id');
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function getJWTIdentifier()

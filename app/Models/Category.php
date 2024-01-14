@@ -9,6 +9,11 @@ class Category extends Model
 {
     use HasFactory;
 
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'category_id');
+    }
+
     protected $fillable = [
         'category_name',
         'department_id'

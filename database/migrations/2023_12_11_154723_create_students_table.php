@@ -19,13 +19,14 @@ return new class extends Migration
             $table->string('password');
             $table->text('studentImage')->nullable();
             $table->string('mobileNumber')->nullable();
-            $table->integer('batchNo');
+            $table->integer('batchNo')->nullable();
             $table->date('registrationDate');
             $table->date('dob')->nullable();
-            $table->string('departmentName');
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->string('bloodGroup')->nullable();
             $table->string('address')->nullable();
-            $table->text("verified_code");
+            $table->text("verified_code")->nullable();
             $table->string('verified_email')->default(false);
             $table->boolean("approve")->default(false);
             $table->timestamps();

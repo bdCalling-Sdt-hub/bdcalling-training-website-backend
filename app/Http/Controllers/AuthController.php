@@ -21,6 +21,8 @@ class AuthController extends Controller
     public function register(Request $request)
 
     {
+
+
         Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
             return strpos($value, '.') !== false;
         });
@@ -72,6 +74,10 @@ class AuthController extends Controller
                 'message' => 'User registration Successfully',
                 'user' => $user,
             ]);
+        }else{
+            return response()->json([
+               "message"=>"Please select your profile image"
+            ],400);
         }
     }
 
@@ -226,45 +232,45 @@ class AuthController extends Controller
         }
     }
 
-    // public function approvelByAdmin(Request $request)
-    // {
-    //     $user = $this->guard()->user();
+    public function approvelByAdmin(Request $request)
+    {
+        $user = $this->guard()->user();
 
-    //     $userType = $user->userType ?? null;
+        $userType = $user->userType ?? null;
 
-    //     if ($userType == "SUPER ADMIN") {
+        if ($userType == "SUPER ADMIN") {
 
-    //         $dataFind = User::find($request->id);
-    //         if ($dataFind) {
-    //             $dataFind->approve = true;
-    //             $dataFind->update();
+            $dataFind = User::find($request->id);
+            if ($dataFind) {
+                $dataFind->approve = true;
+                $dataFind->update();
 
-    //             if ($dataFind->userType == "MENTOR") {
-    //                 Mentor::create([
-    //                     "register_id" => $dataFind->id
-    //                 ]);
-    //             } elseif ($dataFind->userType == "STUDENT") {
-    //                 Student::create([
-    //                     "register_id" => $dataFind->id,
-    //                     "batch_no" => $dataFind->batch_no,
-    //                     "department_name" => $dataFind->department_name,
-    //                     "registration_date" => $dataFind->registration_date
-    //                 ]);
-    //             }
+                if ($dataFind->userType == "MENTOR") {
+                    Mentor::create([
+                        "register_id" => $dataFind->id
+                    ]);
+                } elseif ($dataFind->userType == "STUDENT") {
+                    Student::create([
+                        "register_id" => $dataFind->id,
+                        "batch_no" => $dataFind->batch_no,
+                        "department_name" => $dataFind->department_name,
+                        "registration_date" => $dataFind->registration_date
+                    ]);
+                }
 
 
-    //             return response()->json([
-    //                 "message" => "User approved successfully"
-    //             ], 200);
-    //         } else {
-    //             return response()->json([
-    //                 "message" => "Data not found"
-    //             ], 404);
-    //         }
-    //     } elseif ($userType == null) {
-    //         return response()->json(['message' => 'You are unauthorized user'], 401);
-    //     }
-    // }
+                return response()->json([
+                    "message" => "User approved successfully"
+                ], 200);
+            } else {
+                return response()->json([
+                    "message" => "Data not found"
+                ], 404);
+            }
+        } elseif ($userType == null) {
+            return response()->json(['message' => 'You are unauthorized user'], 401);
+        }
+    }
 
 
     public function removeOtherdevice(){
