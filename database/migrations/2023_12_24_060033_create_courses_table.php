@@ -21,7 +21,8 @@ return new class extends Migration
             $table->date("startDate");
             $table->string("courseTimeLength");
             $table->string("price");
-            $table->integer("mentorId");
+            $table->unsignedBigInteger('mentorId');
+            $table->foreign('mentorId')->references('id')->on('users')->onDelete('cascade');
             $table->integer("maxStudentLength");
             $table->string("skillLevel");
             $table->string("address");

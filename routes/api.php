@@ -15,6 +15,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MentorController;
 use App\Http\Controllers\StudentJourneyController;
 use App\Models\StudentJourney;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,34 +30,34 @@ use App\Models\StudentJourney;
 
 
 
-Route::group([
+// Route::group([
 
-    ['middleware' => 'auth:student_api']
-
-
-], function ($router) {
-
-    Route::post("/students/register", [StudentController::class, "register"]);
-    Route::post("/students/verified-email", [StudentController::class, "emailVerified"]);
-    Route::post("/students/login", [StudentController::class, "login"]);
-    Route::get('/students/profile', [StudentController::class, 'loggedUserData']);
-    Route::post('/students/forget-pass', [StudentController::class, 'forgetPassword']);
-    Route::post('/students/verified-checker', [StudentController::class, 'emailVerifiedForResetPass']);
-    Route::post('/students/reset-password', [StudentController::class, 'resetPassword']);
-    Route::post('/students/update-pass', [StudentController::class, 'updatePassword']);
-});
+//     ['middleware' => 'auth:student_api']
 
 
-Route::group([
+// ], function ($router) {
 
-    ['middleware' => 'auth:mentor_api']
+//     Route::post("/students/register", [StudentController::class, "register"]);
+//     Route::post("/students/verified-email", [StudentController::class, "emailVerified"]);
+//     Route::post("/students/login", [StudentController::class, "login"]);
+//     Route::get('/students/profile', [StudentController::class, 'loggedUserData']);
+//     Route::post('/students/forget-pass', [StudentController::class, 'forgetPassword']);
+//     Route::post('/students/verified-checker', [StudentController::class, 'emailVerifiedForResetPass']);
+//     Route::post('/students/reset-password', [StudentController::class, 'resetPassword']);
+//     Route::post('/students/update-pass', [StudentController::class, 'updatePassword']);
+// });
 
 
-], function ($router) {
+// Route::group([
 
-    Route::post("/mentors/login", [MentorController::class, "login"]);
-    Route::get("/mentors/profile", [MentorController::class, "loggedUserData"]);
-});
+//     ['middleware' => 'auth:mentor_api']
+
+
+// ], function ($router) {
+
+//     Route::post("/mentors/login", [MentorController::class, "login"]);
+//     Route::get("/mentors/profile", [MentorController::class, "loggedUserData"]);
+// });
 
 
 Route::group([
@@ -66,31 +67,33 @@ Route::group([
 
 ], function ($router) {
 
-    Route::post("/admins/register", [AuthController::class, "register"]);
-    Route::post("/admins/login", [AuthController::class, "login"]);
-    Route::get("/admins/profile", [AuthController::class, "loggedUserData"]);
-    Route::post('/admins/update-pass',[AuthController::class,'updatePassword']);
+    //authenticatin api
+
+     Route::post("/register", [AuthController::class, "register"]);
+     Route::post("/verified-email", [AuthController::class, "emailVerified"]);
+     Route::post("/login", [AuthController::class, "login"]);
+     Route::get("/profile", [AuthController::class, "loggedUserData"]);
+     Route::post('forget-pass', [AuthController::class, 'forgetPassword']);
+     Route::post('/verified-checker', [AuthController::class, 'emailVerifiedForResetPass']);
+     Route::post('/reset-pass', [AuthController::class, 'resetPassword']);
+     Route::post('/update-pass', [AuthController::class, 'updatePassword']);
+     Route::put("/profile/edit/{id}",[AuthController::class,'editProfile']);
+     Route::delete("/profile/delete/{id}",[AuthController::class,"deleteProfile"]);
+
+
+    //mentors data api
+
+    Route::get("/mentors/all",[MentorController::class,'allMentors']);
+    Route::get("/mentors/all/{catId}",[MentorController::class, "allMentorsByCategory"]);
 
 
 
-
-    //
-
-    Route::post("/mentors/register", [MentorController::class, "register"]);
-    Route::post("/mentors/approve/{id}", [MentorController::class, "mentorAccountApproved"]);
-    Route::get("/mentors/profile/{id}", [MentorController::class, "mentorProfileShow"]);
-    Route::delete("/mentors/{id}", [MentorController::class, "mentorAccountDelete"]);
-    Route::put("/mentors/{id}", [MentorController::class, "mentorProfileEdit"]);
-    Route::get("/mentors/all", [MentorController::class, "getAllMentor"]);
+    //get all students
+    Route::get("/students/all",[StudentController::class,"allStudentList"]);
+    Route::get("/students/approve/{id}",[StudentController::class,'accountApproveByAdmin']);
+    Route::get("/students/unapprove/{id}",[StudentController::class,'accountUnapproveByAdmin']);
 
 
-    //events
-
-    Route::resource('events', EventController::class);
-    Route::resource('galleries', GalleryController::class);
-    Route::resource('journies', StudentJourneyController::class);
-    Route::resource('schedules', ClassScheduleController::class);
-    Route::post("/schedules/department/batch",[ClassScheduleController::class,"scheduleShowByCatAndBatch"]);
 
 
 
@@ -105,9 +108,20 @@ Route::group([
     Route::post('/category',[CategoryController::class,'categoryAdd']);
     Route::get('/category/{id}',[CategoryController::class,'categoryById']);
     Route::put('/category/{id}',[CategoryController::class,'categoryUpdate']);
+    Route::get('/category',[CategoryController::class,'getAllCategory']);
+
+////////////////////////////////
+    //events
+
+    Route::resource('events', EventController::class);
+    Route::resource('galleries', GalleryController::class);
+    Route::resource('journies', StudentJourneyController::class);
+    Route::resource('schedules', ClassScheduleController::class);
+    Route::post("/schedules/department/batch",[ClassScheduleController::class,"scheduleShowByCatAndBatch"]);
 
 
-    //course api route
+
+     //course api route
 
     Route::post("/course",[CourseController::class,'courseAdd']);
     Route::get("/course",[CourseController::class,'showAllCourse']);
@@ -124,20 +138,77 @@ Route::group([
     Route::put("/class/{classid}",[ClassController::class,'editClass']);
 
 
-    //student crud api by super admin
-    Route::get("/admins/students/approve/{id}",[StudentController::class,'accountApproveByAdmin']);
-    Route::get("/admins/students/unapprove/{id}",[StudentController::class,'accountUnapproveByAdmin']);
 
-    Route::get("admins/students/all",[StudentController::class,"allStudentList"]);
 
-    Route::post("/admins/students/add",[StudentController::class,"addStudent"]);
-    Route::delete("/admins/students/delete/{id}",[StudentController::class,"deleteStudent"]);
-    Route::get("/admins/students/show/{id}",[StudentController::class,"showStudent"]);
+
+
+    // Route::post("/admins/register", [AuthController::class, "register"]);
+    // Route::post("/admins/login", [AuthController::class, "login"]);
+    // Route::get("/admins/profile", [AuthController::class, "loggedUserData"]);
+    // Route::post('/admins/update-pass',[AuthController::class,'updatePassword']);
+
+
+
+
+    // //
+
+    // Route::post("/mentors/register", [MentorController::class, "register"]);
+    // Route::post("/mentors/approve/{id}", [MentorController::class, "mentorAccountApproved"]);
+    // Route::get("/mentors/profile/{id}", [MentorController::class, "mentorProfileShow"]);
+    // Route::delete("/mentors/{id}", [MentorController::class, "mentorAccountDelete"]);
+    // Route::put("/mentors/{id}", [MentorController::class, "mentorProfileEdit"]);
+    // Route::get("/mentors/all", [MentorController::class, "getAllMentor"]);
+    // Route::get("/mentors/all/{catId}",[MentorController::class, "allMentorsByCategory"]);
+
+
+    // //events
+
+    // Route::resource('events', EventController::class);
+    // Route::resource('galleries', GalleryController::class);
+    // Route::resource('journies', StudentJourneyController::class);
+    // Route::resource('schedules', ClassScheduleController::class);
+    // Route::post("/schedules/department/batch",[ClassScheduleController::class,"scheduleShowByCatAndBatch"]);
+
+
+
+
+
+
+    // //course api route
+
+    // Route::post("/course",[CourseController::class,'courseAdd']);
+    // Route::get("/course",[CourseController::class,'showAllCourse']);
+    // Route::put("/course/{id}",[CourseController::class,'courseUpdate']);
+    // Route::delete("/course/{courseId}",[CourseController::class,'deleteCourse']);
+
+
+    // //class api
+
+    // Route::post("/class",[ClassController::class,'addClass']);
+    // Route::get("/class/{id}",[ClassController::class,'getAllClassByCourseId']);
+    // Route::get("/class",[ClassController::class,'getAllClassByCourseIdAndBatch']);
+    // Route::get("/class-single/{classid}",[ClassController::class,'showClass']);
+    // Route::put("/class/{classid}",[ClassController::class,'editClass']);
+
+
+    // //student crud api by super admin
+    // Route::get("/admins/students/approve/{id}",[StudentController::class,'accountApproveByAdmin']);
+    // Route::get("/admins/students/unapprove/{id}",[StudentController::class,'accountUnapproveByAdmin']);
+
+    // Route::get("admins/students/all",[StudentController::class,"allStudentList"]);
+
+    // Route::post("/admins/students/add",[StudentController::class,"addStudent"]);
+    // Route::delete("/admins/students/delete/{id}",[StudentController::class,"deleteStudent"]);
+    // Route::get("/admins/students/show/{id}",[StudentController::class,"showStudent"]);
+    // Route::put("/admins/students/update/{id}",[StudentController::class,"updateStudent"]);
+
+
+
 
 });
 
 
-Route::get("all/mentors",[MentorController::class,"allMentors"]);
+
 
 
 

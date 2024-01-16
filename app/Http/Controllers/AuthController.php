@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\DemoMail;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 
 
 
@@ -23,37 +25,53 @@ class AuthController extends Controller
     {
 
 
-        Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
-            return strpos($value, '.') !== false;
-        });
+        $user = User::where('email', $request->email)
+            ->where('verified_email', 0)
+            ->first();
 
-        $validator = Validator::make($request->all(), [
-            'fullName' => 'required|string|min:2|max:100',
-            'email' => 'required|string|email|max:60|unique:users|contains_dot',
-            'userName' => 'required|string|max:20|unique:users',
-            'verified_email' => 'nullable',
-            'mobileNumber' => 'required',
-            'password' => 'required|string|min:6|confirmed',
-            'userType' => ['required', Rule::in(['SUPER ADMIN', 'ADMIN'])],
-        ], [
-            'email.contains_dot' => 'without (.) Your email is invalid',
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
+        if ($user) {
+
+            $token = "http://bdcallingacademy.com/verified/";
+            $random = Str::random(40);
+            Mail::to($request->email)->send(new DemoMail($token . $random));
+            $user->update(['verified_code' => $random]);
+            $user->update(['verified_email' => 0]);
+
+            return response(['message' => 'Please check your email for validate your email.'], 200);
+        } else {
+            Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
+                return strpos($value, '.') !== false;
+            });
+
+            $validator = Validator::make($request->all(), [
+                'fullName' => 'required|string|min:2|max:100',
+
+                'userName' => 'required|string|max:20|unique:users',
+                'email' => 'required|string|email|max:60|unique:users|contains_dot',
+                'password' => 'required|string|min:6|confirmed',
+                'userType' => ['required', Rule::in(['STUDENT', 'MENTOR', 'ADMIN', 'SUPER ADMIN'])],
+                'mobileNumber' => 'required',
+
+            ], [
+                'email.contains_dot' => 'without (.) Your email is invalid',
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+
+            $fileUrl = null;
+
+            if ($request->file('image')) {
+                $file = $request->file('image');
 
 
-        if ($request->file('image')) {
-            $file = $request->file('image');
+                $timeStamp = time(); // Current timestamp
+                $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('image', $fileName, 'public');
 
-
-            $timeStamp = time(); // Current timestamp
-            $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('image', $fileName, 'public');
-
-            $filePath = '/storage/image/' . $fileName;
-            $fileUrl = $filePath;
-
+                $filePath = '/storage/image/' . $fileName;
+                $fileUrl = $filePath;
+            }
 
             $userData = [
                 'fullName' => $request->fullName,
@@ -62,24 +80,55 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'mobileNumber' => $request->mobileNumber,
                 'userType' => $request->userType,
-                'image' => $fileUrl
+
+                'verified_code' => Str::random(40),
+                'image' => $fileUrl,
+
+                'batchNo' => $request->batchNo ? $request->batchNo : null,
+                'category_id' => $request->category_id ? $request->category_id : null,
+                'dob' => $request->dob ? $request->dob : null,
+                'registrationDate' => $request->registrationDate ? $request->registrationDate : null,
+
+                'bloodGroup' => $request->bloodGroup ? $request->bloodGroup : null,
+                'address' => $request->address ? $request->address : null,
+                'designation' => $request->designation ? $request->designation : null,
+                'expert' => $request->expert ? $request->expert : null,
+                'approve' => $request->approve ? $request->approve : null
             ];
 
-
-
-
-
             $user = User::create($userData);
+            $token = "http://bdcallingacademy.com/verified/";
+            Mail::to($request->email)->send(new DemoMail($token . $user->verified_code));
             return response()->json([
-                'message' => 'User registration Successfully',
-                'user' => $user,
+                'message' => 'Please check your email to valid your email',
+
             ]);
-        }else{
-            return response()->json([
-               "message"=>"Please select your profile image"
-            ],400);
         }
     }
+
+
+
+
+    public function emailVerified(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'verified_code' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('verified_code', $request->verified_code)->first();
+
+        if (!$user) {
+            return response(['message' => 'Invalid'], 422);
+        }
+        $user->update(['verified_email' => 1]);
+        $user->update(['verified_code' => 0]);
+        return response(['message' => 'Email verified successfully']);
+    }
+
 
 
 
@@ -93,6 +142,17 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
+
+        $userData = User::where("email", $request->email)->first();
+        if ($userData && Hash::check($request->password, $userData->password)) {
+            if ($userData->verified_email == 0) {
+                return response()->json(['message' => 'Your email is not verified'], 401);
+            }
+        }
+
+
+
+
         $credentials = $request->only('email', 'password');
 
         if ($token = $this->guard()->attempt($credentials)) {
@@ -104,28 +164,18 @@ class AuthController extends Controller
     }
 
 
-
-
-
-
     protected function respondWithToken($token)
     {
 
         $user = Auth::user();
-        $user->makeHidden(['userType', 'email_verified_at', 'verified_email']);
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()
                 ->factory()
                 ->getTTL(), //hour*seconds
-            'user' => $user
-
-
         ]);
     }
-
-
 
     public function guard()
     {
@@ -136,7 +186,32 @@ class AuthController extends Controller
     {
         if ($this->guard()->user()) {
             $user = $this->guard()->user();
-            $user = $user->makeHidden(['userType', 'email_verified_at', 'verified_email']);
+            if ($user->userType == "STUDENT") {
+                $user->makeHidden(['verified_email', 'verified_code']);
+                return response()->json([
+                    //hour*seconds
+                    'user' => $user
+
+
+                ]);
+            } else if ($user->userType == "MENTOR") {
+                $user->makeHidden(['verified_email', 'batchNo', 'dob', 'registrationDate', 'address', 'bloodGroup', 'verified_code', 'category_id']);
+                return response()->json([
+
+                    'user' => $user
+
+
+                ]);
+            } else {
+                $user->makeHidden(['verified_email', 'verified_code', 'batchNo', 'dob', 'registrationDate', 'address', 'expert', 'category_id']);
+                return response()->json([
+
+                    'user' => $user
+
+
+                ]);
+            }
+
             return response()->json($user);
         } else {
             return response()->json(['message' => 'You are unauthorized']);
@@ -150,12 +225,11 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json(['error' => 'Email not found'], 401);
         } else {
-            $otp = $this->generateCode();
-
-            Mail::to($request->email)->send(new DemoMail($otp));
-
+            $token = "http://bdcallingacademy.com/verified/";
+            $random = Str::random(40);
+            Mail::to($request->email)->send(new DemoMail($token . $random));
+            $user->update(['verified_code' => $random]);
             $user->update(['verified_email' => 0]);
-            $user->update(['otp' => $otp]);
             return response()->json(['message' => 'Please check your email for get the OTP']);
         }
     }
@@ -163,20 +237,32 @@ class AuthController extends Controller
     public function emailVerifiedForResetPass(Request $request)
     {
         $user = User::where('email', $request->email)
-            ->where('otp', $request->otp)
+            ->where('verified_code', $request->verified_code)
             ->first();
+
         if (!$user) {
-            return response()->json(['error' => 'Your otp does not matched'], 401);
+            return response()->json(['error' => 'Your verified code does not matched'], 401);
         } else {
             $user->update(['verified_email' => 1]);
-            $user->update(['otp' => 0]);
+            $user->update(['verified_code' => 0]);
             return response()->json(['message' => 'Now your email is verified'], 200);
         }
     }
 
     public function resetPassword(Request $request)
     {
-        $user = Student::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                "message" => "Your email is not exists"
+            ], 401);
+        }
+        if ($user->verified_email == 0) {
+            return response()->json([
+                "message" => "Your email is not verified"
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
         ]);
@@ -194,7 +280,6 @@ class AuthController extends Controller
         $user = $this->guard()->user();
 
         if ($user) {
-            if ($user->userType === "SUPER ADMIN") {
 
             $validator = Validator::make($request->all(), [
                 'current_password' => 'required|string',
@@ -211,74 +296,327 @@ class AuthController extends Controller
             $user->update(['password' => Hash::make($request->new_password)]);
 
             return response(['message' => 'Password updated successfully'], 200);
+        } else {
+            return response()->json(['message' => 'You are not authorized!'], 401);
+        }
+    }
+
+
+
+    public function editProfile(Request $request, $id)
+    {
+
+        $user = $this->guard()->user();
+
+        if ($user?->userType == "SUPER ADMIN" || $user?->userType == "MENTOR" || $user?->userType == "STUDENT") {
+            $userData = User::find($id);
+
+            if ($user->userType == "SUPER ADMIN" && $userData->userType == "STUDENT") {
+
+
+
+                Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
+                    return strpos($value, '.') !== false;
+                });
+
+                $validator = Validator::make($request->all(), [
+                    'fullName' => 'required|string|min:2|max:100',
+                    'mobileNumber' => 'required',
+
+                ], [
+                    'email.contains_dot' => 'without (.) Your email is invalid',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 400);
+                }
+
+                $userData = User::find($id);
+                $userData->fullName = $request->fullName ? $request->fullName : $userData->fullName;
+                $userData->mobileNumber = $request->mobileNumber ? $request->mobileNumber : $userData->mobileNumber;
+                $userData->registrationDate = $request->registrationDate ? $request->registrationDate : $userData->registrationDate;
+                $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
+                $userData->dob = $request->dob ? $request->dob : $userData->dob;
+                $userData->bloodGroup = $request->bloodGroup ? $request->bloodGroup : $userData->bloodGroup;
+                $userData->address = $request->address ? $request->address : $userData->address;
+                $userData->registrationDate = $request->registrationDate ? $request->registrationDate : $userData->registrationDate;
+
+
+                if ($request->hasFile('image')) {
+                    $file = $request->file('image');
+                    $destination = 'storage/image/' . $userData->image;
+
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $timeStamp = time(); // Current timestamp
+                    $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('image', $fileName, 'public');
+
+                    $filePath = '/storage/image/' . $fileName;
+                    $fileUrl = $filePath;
+                    $userData->image = $fileUrl;
+                }
+
+                $userData->update();
+                return response()->json([
+                    "message" => "Profile updated successfully"
+                ]);
+            } else if ($user->userType == "SUPER ADMIN" && $userData->userType == "MENTOR") {
+
+                Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
+                    return strpos($value, '.') !== false;
+                });
+
+                $validator = Validator::make($request->all(), [
+                    'fullName' => 'required|string|min:2|max:100',
+                    'mobileNumber' => 'required',
+
+                ], [
+                    'email.contains_dot' => 'without (.) Your email is invalid',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 400);
+                }
+
+                $userData = User::find($id);
+                $userData->fullName = $request->fullName;
+                $userData->mobileNumber = $request->mobileNumber;
+                $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
+                $userData->designation = $request->designation ? $request->designation : $userData->designation;
+                $userData->expert = $request->expert ? $request->expert : $userData->expert;
+                if ($request->hasFile('image')) {
+                    $file = $request->file('image');
+                    $destination = 'storage/image/' . $userData->image;
+
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $timeStamp = time(); // Current timestamp
+                    $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('image', $fileName, 'public');
+
+                    $filePath = '/storage/image/' . $fileName;
+                    $fileUrl = $filePath;
+                    $userData->image = $fileUrl;
+                }
+
+                $userData->update();
+                return response()->json([
+                    "message" => "Profile updated successfully"
+                ]);
+            } else if ($user->userType == "STUDENT" && $userData->userType == "STUDENT") {
+
+                Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
+                    return strpos($value, '.') !== false;
+                });
+
+                $validator = Validator::make($request->all(), [
+                    'fullName' => 'required|string|min:2|max:100',
+                    'mobileNumber' => 'required',
+
+                ], [
+                    'email.contains_dot' => 'without (.) Your email is invalid',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 400);
+                }
+
+                $userData = User::find($id);
+                $userData->fullName = $request->fullName ? $request->fullName : $userData->fullName;
+                $userData->mobileNumber = $request->mobileNumber ? $request->mobileNumber : $userData->mobileNumber;
+                $userData->registrationDate = $request->registrationDate ? $request->registrationDate : $userData->registrationDate;
+                $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
+                $userData->dob = $request->dob ? $request->dob : $userData->dob;
+                $userData->bloodGroup = $request->bloodGroup ? $request->bloodGroup : $userData->bloodGroup;
+                $userData->address = $request->address ? $request->address : $userData->address;
+                $userData->registrationDate = $request->registrationDate ? $request->registrationDate : $userData->registrationDate;
+
+
+                if ($request->hasFile('image')) {
+                    $file = $request->file('image');
+                    $destination = 'storage/image/' . $userData->image;
+
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $timeStamp = time(); // Current timestamp
+                    $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('image', $fileName, 'public');
+
+                    $filePath = '/storage/image/' . $fileName;
+                    $fileUrl = $filePath;
+                    $userData->image = $fileUrl;
+                }
+
+                $userData->update();
+                return response()->json([
+                    "message" => "Profile updated successfully"
+                ]);
+            } else if ($user->userType == "MENTOR" && $userData->userType == "MENTOR") {
+                Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
+                    return strpos($value, '.') !== false;
+                });
+
+                $validator = Validator::make($request->all(), [
+                    'fullName' => 'required|string|min:2|max:100',
+                    'mobileNumber' => 'required',
+
+                ], [
+                    'email.contains_dot' => 'without (.) Your email is invalid',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 400);
+                }
+
+                $userData = User::find($id);
+                $userData->fullName = $request->fullName;
+                $userData->mobileNumber = $request->mobileNumber;
+                $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
+                $userData->designation = $request->designation ? $request->designation : $userData->designation;
+                $userData->expert = $request->expert ? $request->expert : $userData->expert;
+                if ($request->hasFile('image')) {
+                    $file = $request->file('image');
+                    $destination = 'storage/image/' . $userData->image;
+
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $timeStamp = time(); // Current timestamp
+                    $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('image', $fileName, 'public');
+
+                    $filePath = '/storage/image/' . $fileName;
+                    $fileUrl = $filePath;
+                    $userData->image = $fileUrl;
+                }
+
+                $userData->update();
+                return response()->json([
+                    "message" => "Profile updated successfully"
+                ]);
+            } else if ($user->userType == "SUPER ADMIN" && $userData->userType == "SUPER ADMIN") {
+                Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
+                    return strpos($value, '.') !== false;
+                });
+
+                $validator = Validator::make($request->all(), [
+                    'fullName' => 'required|string|min:2|max:100',
+                    'mobileNumber' => 'required',
+
+                ], [
+                    'email.contains_dot' => 'without (.) Your email is invalid',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 400);
+                }
+
+                $userData = User::find($id);
+                $userData->fullName = $request->fullName;
+                $userData->mobileNumber = $request->mobileNumber;
+                $userData->designation = $request->designation ? $request->designation : $userData->designation;
+
+                if ($request->hasFile('image')) {
+                    $file = $request->file('image');
+                    $destination = 'storage/image/' . $userData->image;
+
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $timeStamp = time(); // Current timestamp
+                    $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('image', $fileName, 'public');
+
+                    $filePath = '/storage/image/' . $fileName;
+                    $fileUrl = $filePath;
+                    $userData->image = $fileUrl;
+                }
+
+                $userData->update();
+                return response()->json([
+                    "message" => "Profile updated successfully"
+                ]);
+            }
+        } else {
+            return response()->json([
+                "message" => "You are not authorized!"
+            ], 401);
+        }
+    }
+
+
+    public function deleteProfile($id){
+        $user = $this->guard()->user();
+        if ($user?->userType == "SUPER ADMIN") {
+            $userData = User::find($id);
+            $userData->delete();
+            return response()->json([
+                "message" => "Profile deleted successfully"
+            ],200);
 
 
         }else {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json([
+                "message" => "You are not authorized!"
+            ], 401);
         }
 
-        } else {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
     }
 
-    public function logout()
-    {
-        if ($this->guard()->user()) {
-            $this->guard()->logout();
-            return response()->json(['message' => 'User Logged Out successfully'], 200);
-        } else {
-            return response()->json(['message' => 'You are unauthorized user'], 401);
-        }
-    }
+    // public function logout()
+    // {
+    //     if ($this->guard()->user()) {
+    //         $this->guard()->logout();
+    //         return response()->json(['message' => 'User Logged Out successfully'], 200);
+    //     } else {
+    //         return response()->json(['message' => 'You are unauthorized user'], 401);
+    //     }
+    // }
 
-    public function approvelByAdmin(Request $request)
-    {
-        $user = $this->guard()->user();
+    // public function approvelByAdmin(Request $request)
+    // {
+    //     $user = $this->guard()->user();
 
-        $userType = $user->userType ?? null;
+    //     $userType = $user->userType ?? null;
 
-        if ($userType == "SUPER ADMIN") {
+    //     if ($userType == "SUPER ADMIN") {
 
-            $dataFind = User::find($request->id);
-            if ($dataFind) {
-                $dataFind->approve = true;
-                $dataFind->update();
+    //         $dataFind = User::find($request->id);
+    //         if ($dataFind) {
+    //             $dataFind->approve = true;
+    //             $dataFind->update();
 
-                if ($dataFind->userType == "MENTOR") {
-                    Mentor::create([
-                        "register_id" => $dataFind->id
-                    ]);
-                } elseif ($dataFind->userType == "STUDENT") {
-                    Student::create([
-                        "register_id" => $dataFind->id,
-                        "batch_no" => $dataFind->batch_no,
-                        "department_name" => $dataFind->department_name,
-                        "registration_date" => $dataFind->registration_date
-                    ]);
-                }
-
-
-                return response()->json([
-                    "message" => "User approved successfully"
-                ], 200);
-            } else {
-                return response()->json([
-                    "message" => "Data not found"
-                ], 404);
-            }
-        } elseif ($userType == null) {
-            return response()->json(['message' => 'You are unauthorized user'], 401);
-        }
-    }
+    //             if ($dataFind->userType == "MENTOR") {
+    //                 Mentor::create([
+    //                     "register_id" => $dataFind->id
+    //                 ]);
+    //             } elseif ($dataFind->userType == "STUDENT") {
+    //                 Student::create([
+    //                     "register_id" => $dataFind->id,
+    //                     "batch_no" => $dataFind->batch_no,
+    //                     "department_name" => $dataFind->department_name,
+    //                     "registration_date" => $dataFind->registration_date
+    //                 ]);
+    //             }
 
 
-    public function removeOtherdevice(){
-        $user=Auth::guard('api')->user();
-        Auth::guard('api')->logoutOtherDevices($user->id);
-        return response()->json([
-            "id"=>$user->id,
-            "message"=>"logout successfully from other device"
-        ]);
-    }
+    //             return response()->json([
+    //                 "message" => "User approved successfully"
+    //             ], 200);
+    //         } else {
+    //             return response()->json([
+    //                 "message" => "Data not found"
+    //             ], 404);
+    //         }
+    //     } elseif ($userType == null) {
+    //         return response()->json(['message' => 'You are unauthorized user'], 401);
+    //     }
+    // }
+
+
+
 }

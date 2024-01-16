@@ -19,12 +19,18 @@ class Mentor extends Authenticatable implements JWTSubject
         'email',
         'designation',
         'password',
+        'category_id',
         'approve'
 
        ];
 
-    public function user(){
-        return $this->belongsTo(User::class,'register_id');
+    // public function user(){
+    //     return $this->belongsTo(User::class,'register_id');
+    // }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function getJWTIdentifier()

@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mentors', function (Blueprint $table) {
+        Schema::create('class_schedules', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->text('mentor_image');
-            $table->string('email')->unique();
-            $table->string('designation');
-            $table->string('password');
-            $table->boolean("approve")->default(false);
+            $table->time("time");
+            $table->date("date");
+            $table->string("category_id");
+            $table->string("batch");
+            $table->string("mentor_id");
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mentors');
+        Schema::dropIfExists('class_schedules');
     }
 };

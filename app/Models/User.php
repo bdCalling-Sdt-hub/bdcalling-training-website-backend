@@ -23,6 +23,11 @@ class User extends Authenticatable implements JWTSubject
     //     return $this->hasOne(Mentor::class, 'register_id');
     // }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -41,8 +46,22 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         "userType",
+        'verified_email',
+        'verified_code',
+        'mobileNumber',
+
+
+        'batchNo',
+        'category_id',
+        'dob',
+        'registrationDate',
         'image',
-        'mobileNumber'
+        'bloodGroup',
+        'address',
+        'designation',
+        'expert',
+        'approve',
+
     ];
 
 

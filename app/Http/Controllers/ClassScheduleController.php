@@ -56,7 +56,7 @@ class ClassScheduleController extends Controller
                         'required',
                         function ($attribute, $value, $fail) {
                             // Custom validation rule for foreign key existence
-                            $exists = \DB::table('mentors')->where('id', $value)->exists();
+                            $exists = \DB::table('users')->where('id', $value)->exists();
 
                             if (!$exists) {
                                 $fail("The selected mentor is invalid.");
@@ -136,7 +136,8 @@ class ClassScheduleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        
     }
 
     /**
@@ -201,7 +202,7 @@ class ClassScheduleController extends Controller
             $findSchedule=ClassSchedule::where([
                 'category_id' => $request->category_id,
                 'batch' => $request->batch,
-              
+
 
             ])->with(['category', 'mentor'])
                 ->where(DB::raw('YEAR(date)'), $request->year)

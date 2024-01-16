@@ -14,14 +14,28 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('fullName');
-            $table->string('userName');
-            $table->text('image');
+            $table->string('userName')->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('mobileNumber');
             $table->string('userType');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->rememberToken();
+            $table->string('mobileNumber');
+            $table->text("verified_code")->nullable();
+            $table->string('verified_email')->default(false);
+
+            $table->text('image')->nullable();
+            $table->integer('batchNo')->nullable();
+            $table->date('registrationDate')->nullable();
+            $table->date('dob')->nullable();
+
+
+            $table->string("category_id")->nullable();
+            $table->string('bloodGroup')->nullable();
+            $table->string('address')->nullable();
+            $table->string('designation')->nullable();
+            $table->string('expert')->nullable();
+            $table->boolean("approve")->default(false);
+
+
             $table->timestamps();
         });
     }

@@ -113,7 +113,7 @@ class CourseController extends Controller
     public function showAllCourse()
     {
 
-            $course = Course::all();
+            $course = Course::with(['category', 'mentor'])->get();
             $result = count($course);
 
             if ($result == 0) {
