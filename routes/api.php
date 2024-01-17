@@ -10,9 +10,11 @@ use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassScheduleController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\SeminarController;
 use App\Http\Controllers\StudentJourneyController;
 use App\Models\StudentJourney;
 use Illuminate\Support\Facades\Auth;
@@ -208,8 +210,8 @@ Route::group([
 });
 
 
-
-
+Route::resource('seminers', SeminarController::class);
+Route::resource('contacts', ContactController::class);
 
 
 

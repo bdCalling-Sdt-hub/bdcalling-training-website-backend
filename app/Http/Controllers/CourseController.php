@@ -110,18 +110,32 @@ class CourseController extends Controller
     //     }
     // }
 
-    public function showAllCourse()
+    public function showAllCourse(Request $request)
     {
+        $status = $request->input('status');
+        $category = $request->input('category');
+        $perPage = $request->input('per_page', 5);
 
-            $course = Course::with(['category', 'mentor'])->get();
-            $result = count($course);
 
-            if ($result == 0) {
-                return response()->json(["message" => "Data Not found"], 404);
-            } else {
-                return response()->json(["message" => "Data Retrived successfully", "data" => $course], 200);
-            }
+        $course = Course::with(['category', 'mentor']);
 
+        if ($status) {
+            $course->where('status', $status);
+        }
+
+        if ($category) {
+            $course->where('category_id', $category);
+        }
+
+        $courses = $course->paginate($perPage);
+
+        $result = count($courses);
+
+        if ($result == 0) {
+            return response()->json(["message" => "Data Not found"], 404);
+        } else {
+            return response()->json(["message" => "Data Retrived successfully", "data" => $courses], 200);
+        }
     }
 
 
@@ -134,76 +148,71 @@ class CourseController extends Controller
 
             if ($user->userType === "SUPER ADMIN") {
 
-            $course = Course::find($id);
+                $course = Course::find($id);
 
-            if (!$course) {
-                return response()->json(['message' => 'Course not found'], 404);
-            }
-
-            $rules = [
-                'category_id' => 'required',
-                'courseName' => 'required|string|min:2|max:100',
-                'language' => 'required|string|min:2|max:100',
-                'courseDetails' => 'required|string|min:10|max:200',
-                'startDate' => 'required | date',
-                'courseTimeLength' => 'required',
-                'price' => 'required',
-                'mentorId' => 'required',
-                'maxStudentLength' => 'required',
-                'skillLevel' => 'required',
-                'address' => 'required',
-                'courseThumbnail' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-                'status' => 'required'
-            ];
-
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(["errors" => $validator->errors()], 400);
-            }
-            $course->category_id = $request->category_id;
-            $course->courseName = $request->courseName;
-            $course->language = $request->language;
-            $course->courseDetails = $request->courseDetails;
-            $course->startDate = $request->startDate;
-            $course->courseTimeLength = $request->courseTimeLength;
-            $course->price = $request->price;
-            $course->mentorId = $request->mentorId;
-            $course->maxStudentLength = $request->maxStudentLength;
-            $course->skillLevel = $request->skillLevel;
-            $course->address = $request->address;
-            $course->status = $request->status;
-
-
-            if ($request->hasFile('courseThumbnail')) {
-                $file = $request->file('courseThumbnail');
-                $destination = 'storage/courseimage/' . $course->courseThumbnail;
-
-                if (File::exists($destination)) {
-                    File::delete($destination);
+                if (!$course) {
+                    return response()->json(['message' => 'Course not found'], 404);
                 }
 
-                $timeStamp = time(); // Current timestamp
-                $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('courseimage', $fileName, 'public');
+                $rules = [
+                    'category_id' => 'required',
+                    'courseName' => 'required|string|min:2|max:100',
+                    'language' => 'required|string|min:2|max:100',
+                    'courseDetails' => 'required|string|min:10|max:200',
+                    'startDate' => 'required | date',
+                    'courseTimeLength' => 'required',
+                    'price' => 'required',
+                    'mentorId' => 'required',
+                    'maxStudentLength' => 'required',
+                    'skillLevel' => 'required',
+                    'address' => 'required',
+                    'courseThumbnail' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                    'status' => 'required'
+                ];
 
-                $filePath = 'storage/courseimage/' . $fileName;
-                $fileUrl = $filePath;
-                $course->courseThumbnail = $fileUrl;
+                $validator = Validator::make($request->all(), $rules);
+
+                if ($validator->fails()) {
+                    return response()->json(["errors" => $validator->errors()], 400);
+                }
+                $course->category_id = $request->category_id;
+                $course->courseName = $request->courseName;
+                $course->language = $request->language;
+                $course->courseDetails = $request->courseDetails;
+                $course->startDate = $request->startDate;
+                $course->courseTimeLength = $request->courseTimeLength;
+                $course->price = $request->price;
+                $course->mentorId = $request->mentorId;
+                $course->maxStudentLength = $request->maxStudentLength;
+                $course->skillLevel = $request->skillLevel;
+                $course->address = $request->address;
+                $course->status = $request->status;
+
+
+                if ($request->hasFile('courseThumbnail')) {
+                    $file = $request->file('courseThumbnail');
+                    $destination = 'storage/courseimage/' . $course->courseThumbnail;
+
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $timeStamp = time(); // Current timestamp
+                    $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('courseimage', $fileName, 'public');
+
+                    $filePath = 'storage/courseimage/' . $fileName;
+                    $fileUrl = $filePath;
+                    $course->courseThumbnail = $fileUrl;
+                }
+
+                $course->update();
+                return response()->json([
+                    "message" => "course updated successfully"
+                ], 200);
+            } else {
+                return response()->json(["message" => "You are unauthorized"], 401);
             }
-
-            $course->update();
-            return response()->json([
-                "message" => "course updated successfully"
-            ], 200);
-
-
-        }else {
-            return response()->json(["message" => "You are unauthorized"], 401);
-        }
-
-
-
         } else {
             return response()->json(["message" => "You are unauthorized"], 401);
         }
@@ -218,24 +227,22 @@ class CourseController extends Controller
         if ($user) {
             if ($user->userType === "SUPER ADMIN") {
 
-            $course = Course::find($courseId);
-            if ($course) {
-                $course->delete();
+                $course = Course::find($courseId);
+                if ($course) {
+                    $course->delete();
 
-                return response()->json([
-                    "data" => "Course deleted successfully"
-                ]);
-                // Related classes will also be deleted due to the onDelete('cascade') constraint
-            }else{
-                return response()->json([
-                    "data" => "Course not found"
-                ],404);
-            }
-
-            }else {
+                    return response()->json([
+                        "data" => "Course deleted successfully"
+                    ]);
+                    // Related classes will also be deleted due to the onDelete('cascade') constraint
+                } else {
+                    return response()->json([
+                        "data" => "Course not found"
+                    ], 404);
+                }
+            } else {
                 return response()->json(["message" => "You are unauthorized"], 401);
             }
-
         } else {
             return response()->json(["message" => "You are unauthorized"], 401);
         }
