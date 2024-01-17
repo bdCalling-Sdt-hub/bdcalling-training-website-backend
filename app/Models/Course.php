@@ -32,7 +32,19 @@ class Course extends Model
         'skillLevel',
         'address',
         'courseThumbnail',
-        'status'
+        'status',
+        'batch',
+        'discount_price',
+        'coupon_code_price',
+        'coupon_code',
+        'end_date',
+        'seat_left',
+
+        'reviews',
+        'careeropportunities',
+        'carriculum',
+        'job_position',
+        'software'
       ];
 
     //   public function classes()

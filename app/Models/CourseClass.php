@@ -11,7 +11,6 @@ class CourseClass extends Model
 
     protected $fillable = [
         'course_id',
-        'batch',
         'module_title',
         "module_no",
         'module_class'

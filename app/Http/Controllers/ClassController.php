@@ -22,7 +22,6 @@ class ClassController extends Controller
 
         $validator = Validator::make($request->all(),[
             'course_id'=> 'required',
-            'batch' => 'required',
             'module_title' => 'required|string',
             'module_class' => 'required|array',
 
@@ -34,11 +33,9 @@ class ClassController extends Controller
 
 
         $course=CourseClass::where("course_id",$request->course_id)
-                             ->where("batch",$request->batch)
                              ->get();
 
         $courseModuleTitle=CourseClass::where("course_id",$request->course_id)
-                                        ->where("batch",$request->batch)
                                         ->where("module_title",strtolower($request->module_title))
                                         ->get();
 
@@ -52,7 +49,6 @@ class ClassController extends Controller
 
         $result=CourseClass::create([
            "course_id"=>$request->course_id,
-           "batch"=>$request->batch,
            "module_title"=>strtolower($request->module_title),
            "module_no"=>(string)count($course)+1,
            "module_class"=>json_encode($request->module_class)
@@ -80,15 +76,11 @@ class ClassController extends Controller
 
     public function getAllClassByCourseId($id){
 
-        $result=CourseClass::where("course_id",$id)
-        ->orderBy('batch', 'desc') // Order by batch in descending order
-        ->first();
+      
 
-        $newBatch=$result->batch;
 
-        $newCourseById=CourseClass::where("course_id",$id)
-        ->where('batch', $newBatch) // Order by batch in descending order
-        ->get();
+
+        $newCourseById=CourseClass::where("course_id",$id)->get();
 
         $decodedData = [];
 

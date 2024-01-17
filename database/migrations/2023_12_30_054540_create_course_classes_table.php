@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('course_id');
             $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
-            $table->string("batch");
             $table->string("module_title");
             $table->string("module_no");
             $table->longText("module_class");

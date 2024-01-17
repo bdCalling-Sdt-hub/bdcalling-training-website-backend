@@ -28,6 +28,17 @@ return new class extends Migration
             $table->string("address");
             $table->string("courseThumbnail");
             $table->string("status");
+            $table->string("batch");
+            $table->string("discount_price")->nullable();
+            $table->string("coupon_code")->nullable();
+            $table->string("coupon_code_price")->nullable();
+            $table->string("seat_left");
+            $table->date("end_date");
+            $table->json("reviews");
+            $table->json("careeropportunities");
+            $table->json("carriculum");
+            $table->json("job_position");
+            $table->json("software");
             $table->timestamps();
         });
     }

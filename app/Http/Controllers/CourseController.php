@@ -16,6 +16,7 @@ class CourseController extends Controller
     public function courseAdd(Request $request)
     {
 
+
         $user = Auth::guard('api')->user();
 
         if ($user) {
@@ -41,7 +42,16 @@ class CourseController extends Controller
                         'skillLevel' => 'required',
                         'address' => 'required',
                         'courseThumbnail' => 'required|file|max:6072',
-                        'status' => 'required'
+                        'status' => 'required',
+                        'batch'=>'required',
+                        'end_date'=>'required|date',
+                        'seat_left'=>'required',
+
+                        'reviews'=>'required|array',
+                        'careeropportunities'=>'required|array',
+                        'carriculum'=>'required|array',
+                        'job_position'=>'required|array',
+                        'software'=>'required|array'
                     ]);
 
                     if ($validator->fails()) {
@@ -76,7 +86,19 @@ class CourseController extends Controller
                             'skillLevel' => $request->skillLevel,
                             'address' => $request->address,
                             'courseThumbnail' => $fileUrl,
-                            'status' => $request->status
+                            'status' => $request->status,
+                            'batch'=>$request->batch,
+                            'discount_price'=>$request->discount_price?$request->discount_price:null,
+                            'coupon_code'=>$request->coupon_code?$request->coupon_code:null,
+                            'coupon_code_price'=>$request->coupon_code_price?$request->coupon_code_price:null,
+                            'end_date'=>$request->end_date,
+                            'seat_left'=>$request->seat_left,
+
+                            'reviews' => json_encode($request->reviews),
+                            'careeropportunities' => json_encode($request->careeropportunities),
+                            'carriculum' => json_encode($request->carriculum),
+                            'job_position' => json_encode($request->job_position),
+                            'software' => json_encode($request->software),
 
                         ]);
 
@@ -129,6 +151,15 @@ class CourseController extends Controller
 
         $courses = $course->paginate($perPage);
 
+        $courses = $courses->map(function ($course) {
+            $course->reviews = json_decode($course->reviews, true);
+            $course->careeropportunities = json_decode($course->careeropportunities, true);
+            $course->carriculum = json_decode($course->carriculum, true);
+            $course->job_position = json_decode($course->job_position, true);
+            $course->software = json_decode($course->software, true);
+            return $course;
+        });
+
         $result = count($courses);
 
         if ($result == 0) {
@@ -158,7 +189,7 @@ class CourseController extends Controller
                     'category_id' => 'required',
                     'courseName' => 'required|string|min:2|max:100',
                     'language' => 'required|string|min:2|max:100',
-                    'courseDetails' => 'required|string|min:10|max:200',
+                    'courseDetails' => 'required|string|min:10|max:3000',
                     'startDate' => 'required | date',
                     'courseTimeLength' => 'required',
                     'price' => 'required',
@@ -167,7 +198,18 @@ class CourseController extends Controller
                     'skillLevel' => 'required',
                     'address' => 'required',
                     'courseThumbnail' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-                    'status' => 'required'
+                    'status' => 'required',
+                    'batch'=>'required',
+                    'end_date'=>'required',
+                    'seat_left'=>'required',
+
+                    'reviews'=>'required|array',
+                    'careeropportunities'=>'required|array',
+                    'carriculum'=>'required|array',
+                    'job_position'=>'required|array',
+                    'software'=>'required|array'
+
+
                 ];
 
                 $validator = Validator::make($request->all(), $rules);
@@ -187,6 +229,20 @@ class CourseController extends Controller
                 $course->skillLevel = $request->skillLevel;
                 $course->address = $request->address;
                 $course->status = $request->status;
+                $course->batch=$request->batch;
+                $course->discount_price=$request->discount_price?$request->discount_price: $course->discount_price;
+                $course->coupon_code=$request->coupon_code?$request->coupon_code:$course->coupon_code;
+                $course->coupon_code_price=$request->coupon_code_price?$request->coupon_code_price:$course->coupon_code_price;
+                $course->end_date=$request->end_date;
+                $course->seat_left=$request->seat_left;
+
+
+                $course->reviews =$request->reviews?json_encode($request->reviews):json_encode($course->reviews);
+                $course->careeropportunities =$request->careeropportunities?json_encode($request->careeropportunities):json_encode($course->careeropportunities);
+                $course->carriculum =$request->carriculum?json_encode($request->carriculum):json_encode($course->carriculum);
+                $course->job_position =$request->job_position?json_encode($request->job_position):json_encode($course->job_position);
+                $course->software =$request->software?json_encode($request->software):json_encode($course->software);
+
 
 
                 if ($request->hasFile('courseThumbnail')) {
