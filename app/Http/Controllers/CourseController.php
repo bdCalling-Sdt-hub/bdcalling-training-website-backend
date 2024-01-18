@@ -33,11 +33,11 @@ class CourseController extends Controller
                         'category_id' => 'required',
                         'courseName' => 'required|string|min:2|max:100',
                         'language' => 'required|string|min:2|max:100',
-                        'courseDetails' => 'required|string|min:10|max:200',
+                        'courseDetails' => 'required|string|min:10|max:5000',
                         'startDate' => 'required | date',
                         'courseTimeLength' => 'required',
                         'price' => 'required',
-                        'mentorId' => 'required',
+                        'mentorId' => 'required|array',
                         'maxStudentLength' => 'required',
                         'skillLevel' => 'required',
                         'address' => 'required',
@@ -47,7 +47,7 @@ class CourseController extends Controller
                         'end_date'=>'required|date',
                         'seat_left'=>'required',
 
-                        'reviews'=>'required|array',
+
                         'careeropportunities'=>'required|array',
                         'carriculum'=>'required|array',
                         'job_position'=>'required|array',
@@ -81,7 +81,7 @@ class CourseController extends Controller
                             'startDate' => $request->startDate,
                             'courseTimeLength' => $request->courseTimeLength,
                             'price' => $request->price,
-                            'mentorId' => $request->mentorId,
+                            'mentorId' => json_encode($request->mentorId),
                             'maxStudentLength' => $request->maxStudentLength,
                             'skillLevel' => $request->skillLevel,
                             'address' => $request->address,
@@ -94,12 +94,12 @@ class CourseController extends Controller
                             'end_date'=>$request->end_date,
                             'seat_left'=>$request->seat_left,
 
-                            'reviews' => json_encode($request->reviews),
+
                             'careeropportunities' => json_encode($request->careeropportunities),
                             'carriculum' => json_encode($request->carriculum),
                             'job_position' => json_encode($request->job_position),
                             'software' => json_encode($request->software),
-
+                            'popular' => $request->popular ? $request->popular:0
                         ]);
 
                         return response()->json(["message" => "Course created successfully"], 200);
@@ -139,7 +139,7 @@ class CourseController extends Controller
         $perPage = $request->input('per_page', 5);
 
 
-        $course = Course::with(['category', 'mentor']);
+        $course = Course::query();
 
         if ($status) {
             $course->where('status', $status);
@@ -151,12 +151,19 @@ class CourseController extends Controller
 
         $courses = $course->paginate($perPage);
 
-        $courses = $courses->map(function ($course) {
-            $course->reviews = json_decode($course->reviews, true);
+        $courses->transform(function ($course) {
+            $course->mentorId = json_decode($course->mentorId, true);
             $course->careeropportunities = json_decode($course->careeropportunities, true);
             $course->carriculum = json_decode($course->carriculum, true);
             $course->job_position = json_decode($course->job_position, true);
             $course->software = json_decode($course->software, true);
+
+            // Fetch mentor information
+            $mentorIds = $course->mentorId;
+            $mentors = User::whereIn('id', $mentorIds)->get(['id', 'fullName', 'email','image','designation']); // Adjust the columns as needed
+
+            $course->mentors = $mentors;
+
             return $course;
         });
 
@@ -203,7 +210,7 @@ class CourseController extends Controller
                     'end_date'=>'required',
                     'seat_left'=>'required',
 
-                    'reviews'=>'required|array',
+
                     'careeropportunities'=>'required|array',
                     'carriculum'=>'required|array',
                     'job_position'=>'required|array',
@@ -237,12 +244,12 @@ class CourseController extends Controller
                 $course->seat_left=$request->seat_left;
 
 
-                $course->reviews =$request->reviews?json_encode($request->reviews):json_encode($course->reviews);
+
                 $course->careeropportunities =$request->careeropportunities?json_encode($request->careeropportunities):json_encode($course->careeropportunities);
                 $course->carriculum =$request->carriculum?json_encode($request->carriculum):json_encode($course->carriculum);
                 $course->job_position =$request->job_position?json_encode($request->job_position):json_encode($course->job_position);
                 $course->software =$request->software?json_encode($request->software):json_encode($course->software);
-
+                $course->popular=$request->popular?$request->popular:$course->popular;
 
 
                 if ($request->hasFile('courseThumbnail')) {

@@ -14,6 +14,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SeminarController;
 use App\Http\Controllers\StudentJourneyController;
 use App\Models\StudentJourney;
@@ -140,6 +141,9 @@ Route::group([
     Route::put("/class/{classid}",[ClassController::class,'editClass']);
 
 
+    //review api
+
+    Route::resource('reviews',ReviewController::class);
 
 
 

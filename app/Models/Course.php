@@ -16,8 +16,10 @@ class Course extends Model
 
     public function mentor()
     {
-        return $this->belongsTo(User::class,'mentorId');
+        return $this->belongsTo(User::class);
     }
+
+
 
     protected $fillable = [
         'category_id',
@@ -44,7 +46,8 @@ class Course extends Model
         'careeropportunities',
         'carriculum',
         'job_position',
-        'software'
+        'software',
+        'popular'
       ];
 
     //   public function classes()

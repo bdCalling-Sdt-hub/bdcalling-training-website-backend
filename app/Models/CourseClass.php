@@ -18,6 +18,12 @@ class CourseClass extends Model
 
       public function course()
     {
-        return $this->belongsTo(CourseClass::class, 'course_id');
+        return $this->belongsTo(Course::class, 'course_id');
     }
+
+    public function mentor()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

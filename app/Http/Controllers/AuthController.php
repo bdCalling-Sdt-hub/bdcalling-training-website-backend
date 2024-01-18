@@ -93,7 +93,7 @@ class AuthController extends Controller
                 'address' => $request->address ? $request->address : null,
                 'designation' => $request->designation ? $request->designation : null,
                 'expert' => $request->expert ? $request->expert : null,
-                'approve' => $request->approve ? $request->approve : null
+                'approve' => $request->approve ? $request->approve:0
             ];
 
             $user = User::create($userData);
@@ -134,7 +134,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-
+        
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string|min:6',

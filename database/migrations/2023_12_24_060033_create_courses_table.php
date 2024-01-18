@@ -17,12 +17,11 @@ return new class extends Migration
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->string("courseName");
             $table->string("language");
-            $table->string("courseDetails");
+            $table->text("courseDetails");
             $table->date("startDate");
             $table->string("courseTimeLength");
             $table->string("price");
-            $table->unsignedBigInteger('mentorId');
-            $table->foreign('mentorId')->references('id')->on('users')->onDelete('cascade');
+            $table->json("mentorId");
             $table->integer("maxStudentLength");
             $table->string("skillLevel");
             $table->string("address");
@@ -34,11 +33,11 @@ return new class extends Migration
             $table->string("coupon_code_price")->nullable();
             $table->string("seat_left");
             $table->date("end_date");
-            $table->json("reviews");
             $table->json("careeropportunities");
             $table->json("carriculum");
             $table->json("job_position");
             $table->json("software");
+            $table->boolean("popular")->default(false);
             $table->timestamps();
         });
     }
