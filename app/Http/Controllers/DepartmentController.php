@@ -85,6 +85,7 @@ class DepartmentController extends Controller
         if ($user) {
 
             if ($user->userType === "SUPER ADMIN") {
+                
 
                 $validator = Validator::make($request->all(), [
                     'department_name' => 'required|string|min:2|max:100',

@@ -71,20 +71,7 @@ class ReviewController extends Controller
     {
 
         $allReviews=Review::where("course_id",$id)->with(["student","course"])->get();
-        foreach ($allReviews as &$review) {
-            if (isset($review['course']['careeropportunities'])) {
-                $review['course']['careeropportunities'] = json_decode($review['course']['careeropportunities'], true);
-            }
-            if (isset($review['course']['carriculum'])) {
-                $review['course']['carriculum'] = json_decode($review['course']['carriculum'], true);
-            }
-            if (isset($review['course']['job_position'])) {
-                $review['course']['job_position'] = json_decode($review['course']['job_position'], true);
-            }
-            if (isset($review['course']['software'])) {
-                $review['course']['software'] = json_decode($review['course']['software'], true);
-            }
-        }
+        
         return response()->json([
             "data"=>$allReviews
         ]);

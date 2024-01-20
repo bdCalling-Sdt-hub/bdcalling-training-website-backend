@@ -14,6 +14,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\PaymentSslcommerzeController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SeminarController;
 use App\Http\Controllers\StudentJourneyController;
@@ -144,6 +145,9 @@ Route::group([
     //review api
 
     Route::resource('reviews',ReviewController::class);
+
+
+    Route::post('/pay', [PaymentSslcommerzeController::class, 'index']);
 
 
 

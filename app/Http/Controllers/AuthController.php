@@ -31,7 +31,7 @@ class AuthController extends Controller
 
         if ($user) {
 
-            $token = "http://bdcallingacademy.com/verified/";
+            $token = "http://192.168.10.16:3000/verify-email/";
             $random = Str::random(40);
             Mail::to($request->email)->send(new DemoMail($token . $random));
             $user->update(['verified_code' => $random]);
@@ -69,7 +69,7 @@ class AuthController extends Controller
                 $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('image', $fileName, 'public');
 
-                $filePath = '/storage/image/' . $fileName;
+                $filePath = 'storage/image/' . $fileName;
                 $fileUrl = $filePath;
             }
 
@@ -97,7 +97,7 @@ class AuthController extends Controller
             ];
 
             $user = User::create($userData);
-            $token = "http://bdcallingacademy.com/verified/";
+            $token = "http://192.168.10.16:3000/verify-email/";
             Mail::to($request->email)->send(new DemoMail($token . $user->verified_code));
             return response()->json([
                 'message' => 'Please check your email to valid your email',
@@ -134,7 +134,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string|min:6',
@@ -397,7 +397,7 @@ class AuthController extends Controller
                     $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('image', $fileName, 'public');
 
-                    $filePath = '/storage/image/' . $fileName;
+                    $filePath = 'storage/image/' . $fileName;
                     $fileUrl = $filePath;
                     $userData->image = $fileUrl;
                 }
@@ -446,7 +446,7 @@ class AuthController extends Controller
                     $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('image', $fileName, 'public');
 
-                    $filePath = '/storage/image/' . $fileName;
+                    $filePath = 'storage/image/' . $fileName;
                     $fileUrl = $filePath;
                     $userData->image = $fileUrl;
                 }
@@ -489,7 +489,7 @@ class AuthController extends Controller
                     $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('image', $fileName, 'public');
 
-                    $filePath = '/storage/image/' . $fileName;
+                    $filePath = 'storage/image/' . $fileName;
                     $fileUrl = $filePath;
                     $userData->image = $fileUrl;
                 }
@@ -531,7 +531,7 @@ class AuthController extends Controller
                     $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('image', $fileName, 'public');
 
-                    $filePath = '/storage/image/' . $fileName;
+                    $filePath = 'storage/image/' . $fileName;
                     $fileUrl = $filePath;
                     $userData->image = $fileUrl;
                 }

@@ -24,7 +24,9 @@ class CourseController extends Controller
             if ($user->userType === "SUPER ADMIN") {
 
 
-                $course = Course::where("courseName", strtolower($request->courseName))->first();
+                $course = Course::where("courseName", strtolower($request->courseName))
+                ->where("status",$request->status)
+                ->first();
 
                 if ($course) {
                     return response()->json(["message" => "This Course already exists"], 409);
