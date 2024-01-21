@@ -53,7 +53,8 @@ class CourseController extends Controller
                         'careeropportunities'=>'required|array',
                         'carriculum'=>'required|array',
                         'job_position'=>'required|array',
-                        'software'=>'required|array'
+                        'software'=>'required|array',
+                        'publish'=>'required'
                     ]);
 
                     if ($validator->fails()) {
@@ -101,7 +102,9 @@ class CourseController extends Controller
                             'carriculum' => json_encode($request->carriculum),
                             'job_position' => json_encode($request->job_position),
                             'software' => json_encode($request->software),
-                            'popular' => $request->popular ? $request->popular:0
+                            'popular' => $request->popular ? $request->popular:0,
+                            'publish' => $request->publish ? $request->publish:0
+
                         ]);
 
                         return response()->json(["message" => "Course created successfully"], 200);
@@ -216,7 +219,8 @@ class CourseController extends Controller
                     'careeropportunities'=>'required|array',
                     'carriculum'=>'required|array',
                     'job_position'=>'required|array',
-                    'software'=>'required|array'
+                    'software'=>'required|array',
+                    'publish'=>'required'
 
 
                 ];
@@ -252,6 +256,7 @@ class CourseController extends Controller
                 $course->job_position =$request->job_position?json_encode($request->job_position):json_encode($course->job_position);
                 $course->software =$request->software?json_encode($request->software):json_encode($course->software);
                 $course->popular=$request->popular?$request->popular:$course->popular;
+                $course->publish=$request->publish?$request->publish: $course->publish;
 
 
                 if ($request->hasFile('courseThumbnail')) {

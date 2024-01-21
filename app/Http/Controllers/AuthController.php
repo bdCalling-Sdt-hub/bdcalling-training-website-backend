@@ -306,6 +306,7 @@ class AuthController extends Controller
     public function editProfile(Request $request, $id)
     {
 
+
         $user = $this->guard()->user();
 
         if ($user?->userType == "SUPER ADMIN" || $user?->userType == "MENTOR" || $user?->userType == "STUDENT") {
@@ -363,6 +364,7 @@ class AuthController extends Controller
                     "message" => "Profile updated successfully"
                 ]);
             } else if ($user->userType == "SUPER ADMIN" && $userData->userType == "MENTOR") {
+
 
                 Validator::extend('contains_dot', function ($attribute, $value, $parameters, $validator) {
                     return strpos($value, '.') !== false;
@@ -616,6 +618,70 @@ class AuthController extends Controller
     //         return response()->json(['message' => 'You are unauthorized user'], 401);
     //     }
     // }
+
+
+
+    public function accountApproveByAdmin($id){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
+                $dataFind = User::find($id);
+                if($dataFind){
+                    $dataFind->approve = true;
+                    $dataFind->update();
+                    return response()->json([
+                        "message"=>"Account approved successfully"
+                    ],200);
+
+                }else{
+                    return response()->json([
+                        "message"=>"Record not found"
+                    ],404);
+
+                }
+
+            }else{
+                return response()->json(["message"=>"You are unauthorized"],401);
+            }
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+
+}
+
+public function accountUnapproveByAdmin($id){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
+                $dataFind = User::find($id);
+                if($dataFind){
+                    $dataFind->approve = false;
+                    $dataFind->update();
+                    return response()->json([
+                        "message"=>"Account inactived successfully"
+                    ],200);
+
+                }else{
+                    return response()->json([
+                        "message"=>"Record not found"
+                    ],404);
+
+                }
+
+            }else{
+                return response()->json(["message"=>"You are unauthorized"],401);
+            }
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+
+    }
 
 
 

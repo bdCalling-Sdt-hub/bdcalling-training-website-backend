@@ -38,6 +38,7 @@ return new class extends Migration
             $table->json("job_position");
             $table->json("software");
             $table->boolean("popular")->default(false);
+            $table->boolean("publish")->default(false);
             $table->timestamps();
         });
     }

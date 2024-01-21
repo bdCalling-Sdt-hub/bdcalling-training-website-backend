@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentSslcommerzeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VideoController;
 
@@ -19,6 +20,3 @@ Route::get('/', function () {
 });
 
 
-
-Route::get('file-upload', [VideoController::class, 'index'])->name('files.index');
-Route::post('file-upload/upload-large-files', [VideoController::class, 'uploadLargeFiles'])->name('files.upload.large');

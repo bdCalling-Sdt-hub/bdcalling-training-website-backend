@@ -40,67 +40,6 @@ class StudentController extends Controller
 
 // }
 
-public function accountApproveByAdmin($id){
-        $user = Auth::guard('api')->user();
-
-        if ($user) {
-
-            if ($user->userType === "SUPER ADMIN") {
-
-                $dataFind = User::find($id);
-                if($dataFind){
-                    $dataFind->approve = true;
-                    $dataFind->update();
-                    return response()->json([
-                        "message"=>"Student account approve successfully"
-                    ],200);
-
-                }else{
-                    return response()->json([
-                        "message"=>"Record not found"
-                    ],404);
-
-                }
-
-            }else{
-                return response()->json(["message"=>"You are unauthorized"],401);
-            }
-        }else{
-            return response()->json(["message"=>"You are unauthorized"],401);
-        }
-
-}
-
-public function accountUnapproveByAdmin($id){
-        $user = Auth::guard('api')->user();
-
-        if ($user) {
-
-            if ($user->userType === "SUPER ADMIN") {
-
-                $dataFind = User::find($id);
-                if($dataFind){
-                    $dataFind->approve = false;
-                    $dataFind->update();
-                    return response()->json([
-                        "message"=>"Student account inactive successfully"
-                    ],200);
-
-                }else{
-                    return response()->json([
-                        "message"=>"Record not found"
-                    ],404);
-
-                }
-
-            }else{
-                return response()->json(["message"=>"You are unauthorized"],401);
-            }
-        }else{
-            return response()->json(["message"=>"You are unauthorized"],401);
-        }
-
-    }
 
 ///////////////////////////////////////////////////
 

@@ -47,7 +47,8 @@ class Course extends Model
         'carriculum',
         'job_position',
         'software',
-        'popular'
+        'popular',
+        'publish'
       ];
 
     //   public function classes()
