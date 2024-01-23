@@ -160,7 +160,7 @@ Route::group([
     //bkash payment route
 
     Route::get('/bkash/payment', [App\Http\Controllers\BkashTokenizePaymentController::class,'index']);
-    Route::get('/bkash/create-payment', [App\Http\Controllers\BkashTokenizePaymentController::class,'createPayment'])->name('bkash-create-payment');
+    Route::post('/bkash/create-payment/{value}', [App\Http\Controllers\BkashTokenizePaymentController::class,'createPayment'])->name('bkash-create-payment');
     Route::get('/bkash/callback', [App\Http\Controllers\BkashTokenizePaymentController::class,'callBack'])->name('bkash-callBack');
 
 
