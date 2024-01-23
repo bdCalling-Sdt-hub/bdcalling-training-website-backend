@@ -14,6 +14,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentSslcommerzeController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SeminarController;
@@ -132,7 +133,7 @@ Route::group([
     Route::get("/course", [CourseController::class, 'showAllCourse']);
     Route::put("/course/{id}", [CourseController::class, 'courseUpdate']);
     Route::delete("/course/{courseId}", [CourseController::class, 'deleteCourse']);
-
+    Route::get("/course/{id}", [CourseController::class, 'showIndividualCourse']);
 
     //class api
 
@@ -161,6 +162,17 @@ Route::group([
     Route::get('/bkash/payment', [App\Http\Controllers\BkashTokenizePaymentController::class,'index']);
     Route::get('/bkash/create-payment', [App\Http\Controllers\BkashTokenizePaymentController::class,'createPayment'])->name('bkash-create-payment');
     Route::get('/bkash/callback', [App\Http\Controllers\BkashTokenizePaymentController::class,'callBack'])->name('bkash-callBack');
+
+
+
+
+    //orders all routes
+
+
+    Route::get('/orders', [OrderController::class, 'getAllOrders']);
+    Route::get('/incomes', [OrderController::class, 'calculateIncome']);
+
+
 
 
     // Route::post("/admins/register", [AuthController::class, "register"]);

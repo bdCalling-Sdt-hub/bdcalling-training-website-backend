@@ -19,7 +19,7 @@ class BkashTokenizePaymentController extends Controller
         $request['mode'] = '0011'; //0011 for checkout
         $request['payerReference'] = $inv;
         $request['currency'] = 'BDT';
-        $request['amount'] = 10;
+        $request['amount'] = 1;
         $request['merchantInvoiceNumber'] = $inv;
         $request['callbackURL'] = config("bkash.callbackURL");;
 
@@ -30,7 +30,7 @@ class BkashTokenizePaymentController extends Controller
         //$response =  BkashPaymentTokenize::cPayment($request_data_json,1); //last parameter is your account number for multi account its like, 1,2,3,4,cont..
 
         //store paymentID and your account number for matching in callback request
-        // dd($response) //if you are using sandbox and not submit info to bkash use it for 1 response
+        //dd(json_encode($response)); //if you are using sandbox and not submit info to bkash use it for 1 response
 
         if (isset($response['bkashURL'])) return redirect()->away($response['bkashURL']);
         else return redirect()->back()->with('error-alert2', $response['statusMessage']);
@@ -51,6 +51,8 @@ class BkashTokenizePaymentController extends Controller
                 
                 //$response = BkashPaymentTokenize::queryPayment($request->paymentID,1); //last parameter is your account number for multi account its like, 1,2,3,4,cont..
             }
+
+            //dd(json_encode($response));
 
             if (isset($response['statusCode']) && $response['statusCode'] == "0000" && $response['transactionStatus'] == "Completed") {
                 /*
@@ -92,4 +94,19 @@ class BkashTokenizePaymentController extends Controller
         return BkashRefundTokenize::refundStatus($paymentID,$trxID);
         //return BkashRefundTokenize::refundStatus($paymentID,$trxID, 1); //last parameter is your account number for multi account its like, 1,2,3,4,cont..
     }
+
+
+    public function executePayment(Request $request)
+{
+    $paymentID = $request->paymentID;
+    return BkashPayment::executePayment($paymentID);
+}
+
+
+public function queryPayment(Request $request)
+{
+    $paymentID = $request->payment_info['payment_id'];
+    return BkashPayment::queryPayment($paymentID);
+}
+
 }

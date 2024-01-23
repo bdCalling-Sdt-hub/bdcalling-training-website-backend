@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,7 @@ class CourseController extends Controller
 
     public function courseAdd(Request $request)
     {
+
 
 
         $user = Auth::guard('api')->user();
@@ -39,7 +41,7 @@ class CourseController extends Controller
                         'startDate' => 'required | date',
                         'courseTimeLength' => 'required',
                         'price' => 'required',
-                        'mentorId' => 'required|array',
+                        'mentorId' => 'required',
                         'maxStudentLength' => 'required',
                         'skillLevel' => 'required',
                         'address' => 'required',
@@ -50,10 +52,10 @@ class CourseController extends Controller
                         'seat_left'=>'required',
 
 
-                        'careeropportunities'=>'required|array',
-                        'carriculum'=>'required|array',
-                        'job_position'=>'required|array',
-                        'software'=>'required|array',
+                        'careeropportunities'=>'required',
+                        'carriculum'=>'required',
+                        'job_position'=>'required',
+                        'software'=>'required',
                         'publish'=>'required'
                     ]);
 
@@ -137,14 +139,56 @@ class CourseController extends Controller
     //     }
     // }
 
+    public function showIndividualCourse($id){
+        $user = Auth::guard('api')->user();
+
+        if ($user) {
+
+            if ($user->userType === "SUPER ADMIN") {
+
+               $course = Course::find($id);
+
+                if (!$course) {
+                    return response()->json(['message' => 'Course not found'], 404);
+                }else{
+
+                    $course['mentorId'] = json_decode($course['mentorId'], true);
+
+    // Convert careeropportunities field to an array
+    $course['careeropportunities'] = json_decode($course['careeropportunities'], true);
+
+    // Convert carriculum field to an array
+    $course['carriculum'] = json_decode($course['carriculum'], true);
+
+    // Convert job_position field to an array
+    $course['job_position'] = json_decode($course['job_position'], true);
+
+    // Convert software field to an array
+    $course['software'] = json_decode($course['software'], true);
+
+    $mentorDetails = User::whereIn('id', $course['mentorId'])->get();
+    $categoryDetails=Category::where("id",$course["category_id"])->first();
+    // Include mentor details in the response
+    $course['mentorDetails'] = $mentorDetails;
+    $course['categoryDetails'] = $categoryDetails;
+                    return response()->json([
+                        "message"=>"Individual course retrived successfully",
+                        "data"=>$course
+                    ],200);
+                }
+
+            }
+        }
+    }
+
     public function showAllCourse(Request $request)
     {
         $status = $request->input('status');
         $category = $request->input('category');
-        $perPage = $request->input('per_page', 5);
+        $perPage = $request->input('per_page', 9);
 
 
-        $course = Course::query();
+        $course = Course::where("publish",1);
 
         if ($status) {
             $course->where('status', $status);
@@ -325,4 +369,6 @@ class CourseController extends Controller
     {
         return Auth::guard();
     }
+
+    
 }

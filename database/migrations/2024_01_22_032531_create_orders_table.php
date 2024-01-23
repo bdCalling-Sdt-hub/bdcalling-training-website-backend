@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string("gateway_name");
             $table->string("course_id");
             $table->string("course_name");
             $table->string("amount");

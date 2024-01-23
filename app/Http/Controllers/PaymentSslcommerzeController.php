@@ -69,6 +69,9 @@ class PaymentSslcommerzeController extends Controller
                         "student_id" => $user->id,
                         "currency" => "BDT",
                         'status' => 'Pending',
+                        'gateway_name'=>$request->gateway_name,
+                        'created_at' => now(),
+                        'updated_at' => now()
 
                     ]);
 
@@ -102,7 +105,7 @@ class PaymentSslcommerzeController extends Controller
 
     public function success(Request $request)
     {
-        echo "Transaction is Successful";
+       
 
         $tran_id = $request->input('tran_id');
         $amount = $request->input('amount');
@@ -126,9 +129,9 @@ class PaymentSslcommerzeController extends Controller
                 */
                 $update_product = DB::table('orders')
                     ->where('transaction_id', $tran_id)
-                    ->update(['status' => 'Processing']);
+                    ->update(['status' => 'Processing','updated_at' => now()]);
 
-                return Redirect::away('https://www.google.com');
+                return Redirect::away('http://192.168.10.16:3000/payment/status/success');
                 echo "<br >Transaction is successfully Completed";
             }
         } else if ($order_details->status == 'Processing' || $order_details->status == 'Complete') {
@@ -136,7 +139,7 @@ class PaymentSslcommerzeController extends Controller
              That means through IPN Order status already updated. Now you can just show the customer that transaction is completed. No need to udate database.
              */
 
-            return Redirect::away('https://www.google.com');
+            return Redirect::away('http://192.168.10.16:3000/payment/status/success');
             echo "Transaction is successfully Completed";
         } else {
             #That means something wrong happened. You can redirect customer to your product page.
@@ -155,14 +158,14 @@ class PaymentSslcommerzeController extends Controller
         if ($order_details->status == 'Pending') {
             $update_product = DB::table('orders')
                 ->where('transaction_id', $tran_id)
-                ->update(['status' => 'Failed']);
-            return Redirect::away('https://www.youtube.com');
+                ->update(['status' => 'Failed','updated_at' => now()]);
+            return Redirect::away('http://192.168.10.16:3000/payment/status/failed');
             echo "Transaction is Falied";
         } else if ($order_details->status == 'Processing' || $order_details->status == 'Complete') {
-            return Redirect::away('https://www.youtube.com');
+            return Redirect::away('http://192.168.10.16:3000/payment/status/failed');
             echo "Transaction is already Successful";
         } else {
-            return Redirect::away('https://www.youtube.com');
+            return Redirect::away('http://192.168.10.16:3000/payment/status/failed');
             echo "Transaction is Invalid";
         }
     }
@@ -178,7 +181,7 @@ class PaymentSslcommerzeController extends Controller
         if ($order_details->status == 'Pending') {
             $update_product = DB::table('orders')
                 ->where('transaction_id', $tran_id)
-                ->update(['status' => 'Canceled']);
+                ->update(['status' => 'Canceled','updated_at' => now()]);
             echo "Transaction is Cancel";
         } else if ($order_details->status == 'Processing' || $order_details->status == 'Complete') {
             echo "Transaction is already Successful";
@@ -211,7 +214,7 @@ class PaymentSslcommerzeController extends Controller
                     */
                     $update_product = DB::table('orders')
                         ->where('transaction_id', $tran_id)
-                        ->update(['status' => 'Processing']);
+                        ->update(['status' => 'Processing','updated_at' => now()]);
 
                     echo "Transaction is successfully Completed";
                 }
