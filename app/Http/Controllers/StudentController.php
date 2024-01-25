@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Database\QueryException;
+use App\Models\Orders;
 class StudentController extends Controller
 {
     //
@@ -126,7 +127,7 @@ public function showStudent($id){
 
     if ($user) {
         if ($user->userType === "SUPER ADMIN") {
-            $student = Student::find($id);
+            $student = User::find($id);
             if($student){
 
                 return response()->json([
@@ -148,7 +149,27 @@ public function showStudent($id){
 
 }
 
-//student update by super admin or student
+
+//student buy course
+
+public function getBuyCourseForStudent(){
+    $user = Auth::guard('api')->user();
+   
+    if ($user) {
+        if ($user->userType === "STUDENT") {
+          
+            
+            $orderedCourse=Orders::with(["course"])->where("student_id",$user->id)->where("status","Processing")->get();
+            return $orderedCourse;
+            
+
+        } else {
+            return response()->json(["message" => "You are unauthorized"], 401);
+        }
+    } else {
+        return response()->json(["message" => "You are unauthorized"], 401);
+    }
+}
 
 
 }

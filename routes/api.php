@@ -97,8 +97,8 @@ Route::group([
 
     //get all students
     Route::get("/students/all", [StudentController::class, "allStudentList"]);
-
-
+    Route::get("/students/{id}", [StudentController::class, "showStudent"]);
+    Route::get("/students/buy/courses",[StudentController::class,"getBuyCourseForStudent"]);
 
 
 
@@ -123,8 +123,8 @@ Route::group([
     Route::resource('galleries', GalleryController::class);
     Route::resource('journies', StudentJourneyController::class);
     Route::resource('schedules', ClassScheduleController::class);
-    Route::post("/schedules/department/batch", [ClassScheduleController::class, "scheduleShowByCatAndBatch"]);
-
+    Route::post("/schedules/all/admin", [ClassScheduleController::class, "scheduleForSuperAdmin"]);
+    Route::post("/schedules/mentor", [ClassScheduleController::class, "scheduleForMentor"]);
 
 
     //course api route
@@ -160,7 +160,7 @@ Route::group([
     //bkash payment route
 
     Route::get('/bkash/payment', [App\Http\Controllers\BkashTokenizePaymentController::class,'index']);
-    Route::post('/bkash/create-payment/{value}', [App\Http\Controllers\BkashTokenizePaymentController::class,'createPayment'])->name('bkash-create-payment');
+    Route::post('/bkash/create-payment', [App\Http\Controllers\BkashTokenizePaymentController::class,'createPayment'])->name('bkash-create-payment');
     Route::get('/bkash/callback', [App\Http\Controllers\BkashTokenizePaymentController::class,'callBack'])->name('bkash-callBack');
 
 

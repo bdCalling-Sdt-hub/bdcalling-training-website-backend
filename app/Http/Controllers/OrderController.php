@@ -72,4 +72,7 @@ protected function calculateIncomeByDateRange($startDate, $endDate)
     ->where("status","Processing")
     ->sum('amount');
 }
+
+
+
 }

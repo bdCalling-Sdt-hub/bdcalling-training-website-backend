@@ -180,7 +180,7 @@ class ClassScheduleController extends Controller
     }
 
 
- public function scheduleShowByCatAndBatch(Request $request){
+ public function scheduleForSuperAdmin(Request $request){
 
     $user = Auth::guard('api')->user();
 
@@ -203,6 +203,56 @@ class ClassScheduleController extends Controller
                 'category_id' => $request->category_id,
                 'batch' => $request->batch,
 
+
+            ])->with(['category', 'mentor'])
+                ->where(DB::raw('YEAR(date)'), $request->year)
+                ->where(DB::raw('MONTH(date)'), $request->month)
+                ->get();
+
+            if($findSchedule){
+                 return response()->json([
+                    "data"=>$findSchedule
+                 ]);
+            }else{
+                return response()->json(['message' => 'Record not found'], 404);
+            }
+
+        }else {
+            return response()->json(['message' => 'You are unauthorized user'], 401);
+        }
+    }else {
+        return response()->json(['message' => 'You are unauthorized user'], 401);
+    }
+
+  }
+
+
+
+  public function scheduleForMentor(Request $request){
+   
+
+    $user = Auth::guard('api')->user();
+
+    if ($user) {
+
+        if ($user->userType === "MENTOR") {
+
+        
+            $validator = Validator::make($request->all(),[
+                'batch' => 'required',
+                'category_id' => 'required',
+                'month'=>'required',
+                'year'=>'required'
+           ]);
+
+            if ($validator->fails()){
+                return response()->json(["errors"=>$validator->errors()],400);
+            }
+
+            $findSchedule=ClassSchedule::where([
+                'category_id' => $request->category_id,
+                'batch' => $request->batch,
+                'mentor_id'=>$user->id
 
             ])->with(['category', 'mentor'])
                 ->where(DB::raw('YEAR(date)'), $request->year)

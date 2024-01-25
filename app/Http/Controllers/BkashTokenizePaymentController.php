@@ -6,81 +6,110 @@ use Karim007\LaravelBkashTokenize\Facade\BkashPaymentTokenize;
 use Karim007\LaravelBkashTokenize\Facade\BkashRefundTokenize;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Session;
+use DB;
+use App\Models\Course;
+use Illuminate\Support\Facades\Redirect;
 class BkashTokenizePaymentController extends Controller
 {
     public function index()
     {
         return view('bkashT::bkash-payment');
     }
-    public function createPayment(Request $request,$value)
+     public function createPayment(Request $request)
     {
 
-               $currency = $request->input('currency');
-               
-        
+        $user = Auth::guard('api')->user();
+
+
+        if ($user) {
+
+            if ($user->userType === "STUDENT") {
+
+                cache(['bkash_amount' => $request->price], now()->addMinutes(10));
+                cache(['gateway_name' => $request->gateway_name], now()->addMinutes(10));
+                cache(['course_id' => $request->course_id], now()->addMinutes(10));
+                cache(['student_id' => $user["id"]], now()->addMinutes(10));
+                //cache(['bkash_amount' => $request->price], now()->addMinutes(10));
+
                 $inv = uniqid();
                 $request['intent'] = 'sale';
                 $request['mode'] = '0011'; //0011 for checkout
                 $request['payerReference'] = $inv;
-                $request['currency'] = $currency;
-                $request['amount'] = $value;
-                $request["gateway_name"]=$currency;
+                $request['currency'] = 'BDT';
+                $request['amount'] = $request->price;
                 $request['merchantInvoiceNumber'] = $inv;
                 $request['callbackURL'] = config("bkash.callbackURL");
-
-                
+        
                 $request_data_json = json_encode($request->all());
-
+        
                 $response =  BkashPaymentTokenize::cPayment($request_data_json);
-                Log::info("Create payment response:",["response"=>$response]);
                 //$response =  BkashPaymentTokenize::cPayment($request_data_json,1); //last parameter is your account number for multi account its like, 1,2,3,4,cont..
-
+        
                 //store paymentID and your account number for matching in callback request
-                //dd(json_encode($response)); //if you are using sandbox and not submit info to bkash use it for 1 response
-
-                if (isset($response['bkashURL'])) return redirect()->away($response['bkashURL']);
+                // dd($response) //if you are using sandbox and not submit info to bkash use it for 1 response
+        
+                if (isset($response['bkashURL'])) return $response['bkashURL'];
                 else return redirect()->back()->with('error-alert2', $response['statusMessage']);
 
-            
+            }else {
+                return response()->json(["message" => "You are unauthorized"], 401);
+            }
+        }else {
+            return response()->json(["message" => "You are unauthorized"], 401);
         }
-        
+
        
-    
+    }
 
     public function callBack(Request $request)
     {
         //callback request params
         // paymentID=your_payment_id&status=success&apiVersion=1.2.0-beta
         //using paymentID find the account number for sending params
-       
 
         if ($request->status == 'success'){
             $response = BkashPaymentTokenize::executePayment($request->paymentID);
-            Log::info("Execute payment response:",["response"=>$response]);
             //$response = BkashPaymentTokenize::executePayment($request->paymentID, 1); //last parameter is your account number for multi account its like, 1,2,3,4,cont..
             if (!$response){ //if executePayment payment not found call queryPayment
                 $response = BkashPaymentTokenize::queryPayment($request->paymentID);
-
                 //$response = BkashPaymentTokenize::queryPayment($request->paymentID,1); //last parameter is your account number for multi account its like, 1,2,3,4,cont..
             }
-
-            //dd(json_encode($response));
 
             if (isset($response['statusCode']) && $response['statusCode'] == "0000" && $response['transactionStatus'] == "Completed") {
                 /*
                  * for refund need to store
                  * paymentID and trxID
                  * */
-                return BkashPaymentTokenize::success('Thank you for your payment', $response['trxID']);
+               $amount=cache('bkash_amount');
+               $course_id=cache("course_id");
+               $student_id=cache("student_id");
+               $gateway_name=cache("gateway_name");
+
+               $courseName=Course::find($course_id);
+
+                 DB::table("orders")->insert([
+                    "amount"=>$amount,
+                    "gateway_name"=> $gateway_name,
+                    "course_id"=> $course_id,
+                    "course_name"=>$courseName->courseName,
+                    "transaction_id"=>$response['trxID'],
+                    "student_id"=>$student_id,
+                    "status"=>"Processing",
+                    "currency"=>"BDT"
+                 ]);
+                return Redirect::away('http://192.168.10.16:3000/payment/status/success');
+                //return BkashPaymentTokenize::success('Thank you for your payment', $response['trxID']);
             }
-            return BkashPaymentTokenize::failure($response['statusMessage']);
+           // return BkashPaymentTokenize::failure($response['statusMessage']);
+            return Redirect::away('http://192.168.10.16:3000/payment/status/failed');
         }else if ($request->status == 'cancel'){
             return BkashPaymentTokenize::cancel('Your payment is canceled');
         }else{
             return BkashPaymentTokenize::failure('Your transaction is failed');
         }
     }
+
 
     public function searchTnx($trxID)
     {
