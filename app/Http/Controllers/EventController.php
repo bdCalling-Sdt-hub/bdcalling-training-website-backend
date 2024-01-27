@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
 use Illuminate\Support\Facades\File;
+use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
@@ -58,7 +59,9 @@ class EventController extends Controller
                     'starttime' => 'required|date_format:H:i|after:08:00|before:22:00',
                     'endtime' => 'required|date_format:H:i|after:08:00|before:22:00',
                     'officeLocation' => 'required|string',
-                    'courseName' => 'required'
+                    'courseName' => 'required',
+                    'description'=>'required',
+                    'status' => ['required', Rule::in(['ONLINE','OFFLINE'])]
                 ]);
 
                 if ($validator->fails()) {
@@ -74,7 +77,7 @@ class EventController extends Controller
                     $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('eventImage', $fileName, 'public');
 
-                    $filePath = '/storage/eventImage/' . $fileName;
+                    $filePath = 'storage/eventImage/' . $fileName;
                     $fileUrl = $filePath;
 
 
@@ -85,6 +88,8 @@ class EventController extends Controller
                         'endtime'=>$request->endtime,
                         'officeLocation' => $request->officeLocation,
                         'courseName' => $request->courseName,
+                        'description'=>$request->description,
+                        'status'=>$request->status
 
                     ];
 
@@ -158,7 +163,9 @@ class EventController extends Controller
                     'starttime' => 'required|date_format:H:i|after:08:00|before:22:00',
                     'endtime' => 'required|date_format:H:i|after:08:00|before:22:00',
                     'officeLocation' => 'required|string',
-                    'courseName' => 'required'
+                    'courseName' => 'required',
+                    'description'=>'required',
+                    'status' => ['required', Rule::in(['ONLINE','OFFLINE'])]
                 ];
 
                 $validator = Validator::make($request->all(),$rules);
@@ -172,6 +179,8 @@ class EventController extends Controller
                 $event->endtime=$request->endtime;
                 $event->officeLocation=$request->officeLocation;
                 $event->courseName=$request->courseName;
+                $event->description=$request->description;
+                $event->status=$request->status;
 
 
 

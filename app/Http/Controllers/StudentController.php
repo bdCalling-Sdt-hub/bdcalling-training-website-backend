@@ -55,7 +55,7 @@ class StudentController extends Controller
             if ($user->userType === "SUPER ADMIN") {
                 $categoryName = $request->input('category_id');
                 $batchNumber = $request->input('batchNo');
-                $perPage = $request->input('per_page', 1);
+                $perPage = $request->input('per_page', 10000000000);
 
                 $studentsQuery = User::where('userType', 'STUDENT');
 
@@ -67,14 +67,16 @@ class StudentController extends Controller
                     $studentsQuery->where('batchNo', $batchNumber);
                 }
 
-                $students = $studentsQuery->with(['category'])->orderBy("created_at","desc")->paginate($perPage);
+               $students = $studentsQuery->with(['category'])->orderBy("created_at","desc")->paginate($perPage);
+              
+
                 $students->appends([
                     'category_name' => $categoryName,
                     'batch_number' => $batchNumber,
                     'per_page' => $perPage,
                 ]);
 
-                // Get the total number of pages
+                //Get the total number of pages
                 $totalPages = $students->lastPage();
 
                 // Add pagination information to the response
@@ -87,7 +89,7 @@ class StudentController extends Controller
                 // Add pagination links and information to the response
                 $paginationLinks = $students->links();
 
-                //$students=$students->makeHidden(['verified_code', 'email_verified_at', 'verified_email', 'approve', 'password']);
+                $students=$students->makeHidden(['verified_code', 'email_verified_at', 'verified_email','password']);
                 if($students->count()>0){
                 return response()->json([
                    "message"=>"All student data retrived successfully",

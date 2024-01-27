@@ -225,7 +225,7 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json(['error' => 'Email not found'], 401);
         } else {
-            $token = "http://bdcallingacademy.com/verified/";
+            $token = "http://192.168.10.3:5000/verified/";
             $random = Str::random(40);
             Mail::to($request->email)->send(new DemoMail($token . $random));
             $user->update(['verified_code' => $random]);
@@ -241,7 +241,8 @@ class AuthController extends Controller
             ->first();
 
         if (!$user) {
-            return response()->json(['error' => 'Your verified code does not matched'], 401);
+           
+            return response()->json(['error' => 'Your verified code does not matched '], 401);
         } else {
             $user->update(['verified_email' => 1]);
             $user->update(['verified_code' => 0]);
@@ -354,7 +355,7 @@ class AuthController extends Controller
                     $fileName = $timeStamp . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('image', $fileName, 'public');
 
-                    $filePath = '/storage/image/' . $fileName;
+                    $filePath = 'storage/image/' . $fileName;
                     $fileUrl = $filePath;
                     $userData->image = $fileUrl;
                 }

@@ -180,7 +180,7 @@ class CourseController extends Controller
             }
         }
     }
-
+//for student
     public function showAllCourse(Request $request)
     {
         $status = $request->input('status');
@@ -224,6 +224,81 @@ class CourseController extends Controller
             return response()->json(["message" => "Data Retrived successfully", "data" => $courses], 200);
         }
     }
+
+//for super admin
+
+public function showAllCourseForSuperAdmin(Request $request)
+{
+    $status = $request->input('status');
+    $category = $request->input('category');
+    $perPage = $request->input('per_page', 5000000);
+
+
+    $course = Course::whereIn("publish",[0,1]);
+
+    if ($status) {
+        $course->where('status', $status);
+    }
+
+    if ($category) {
+        $course->where('category_id', $category);
+    }
+
+    $courses = $course->paginate($perPage);
+
+    $courses->transform(function ($course) {
+        $course->mentorId = json_decode($course->mentorId, true);
+        $course->careeropportunities = json_decode($course->careeropportunities, true);
+        $course->carriculum = json_decode($course->carriculum, true);
+        $course->job_position = json_decode($course->job_position, true);
+        $course->software = json_decode($course->software, true);
+
+        // Fetch mentor information
+        $mentorIds = $course->mentorId;
+        $mentors = User::whereIn('id', $mentorIds)->get(['id', 'fullName', 'email','image','designation']); // Adjust the columns as needed
+
+        $course->mentors = $mentors;
+
+        return $course;
+    });
+
+    $result = count($courses);
+
+    if ($result == 0) {
+        return response()->json(["message" => "Data Not found"], 404);
+    } else {
+        return response()->json(["message" => "Data Retrived successfully", "data" => $courses], 200);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public function courseUpdate(Request $request, $id)

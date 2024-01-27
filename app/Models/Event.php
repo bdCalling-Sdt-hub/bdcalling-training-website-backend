@@ -16,7 +16,9 @@ class Event extends Model
         'starttime',
         'endtime',
         'officeLocation',
-        'courseName'
+        'courseName',
+        'description',
+        'status'
 
       ];
 

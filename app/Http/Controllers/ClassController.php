@@ -56,6 +56,10 @@ class ClassController extends Controller
                     "module_class" => json_encode($request->module_class)
                 ]);
 
+                $course=Course::find($request->course_id);
+                $course->publish=1;
+                $course->update();
+
                 return response()->json([
                     "message" => "Class added successfully"
                 ]);
@@ -150,7 +154,7 @@ class ClassController extends Controller
     public function showClass($classid)
     {
 
-        $classDetails = CourseClass::where("id", $classid)->first();
+        $classDetails = CourseClass::with(["course"])->where("id", $classid)->first();
 
         if ($classDetails) {
             $data = json_decode($classDetails["module_class"]);
@@ -177,7 +181,6 @@ class ClassController extends Controller
 
                 $validator = Validator::make($request->all(), [
                     'course_id' => 'required',
-                    'batch' => 'required',
                     'module_title' => 'required|string',
                     'module_class' => 'required|array',
 
@@ -187,24 +190,22 @@ class ClassController extends Controller
                     return response()->json(["errors" => $validator->errors()], 400);
                 }
 
-                $class = CourseClass::find($classid);
+                $class = CourseClass::with(["course"])->find($classid);
+                //return $class;
 
                 if ($class) {
                     $courseModuleTitle = CourseClass::where("course_id", $request->course_id)
-                        ->where("batch", $request->batch)
+                       
                         ->where("module_title", strtolower($request->module_title))
                         ->get();
 
+                        //return count($courseModuleTitle);
+                    
 
-
-                    if (count($courseModuleTitle) > 0) {
-                        return response()->json([
-                            "message" => "This module_title already exists"
-                        ], 409);
-                    } else {
+                  
 
                         $class->course_id = $request->course_id;
-                        $class->batch = $request->batch;
+                       
                         $class->module_title = $request->module_title;
                         $class->module_no = $request->module_no;
                         $class->module_class = json_encode($request->module_class);
@@ -213,7 +214,7 @@ class ClassController extends Controller
                             "message" => "Class edit successfully",
                             "data" => $class
                         ], 200);
-                    }
+                    
                 } else {
                     return response()->json(["message" => "Class not found"], 404);
                 }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use App\Models\Orders;
 class ClassScheduleController extends Controller
 {
     /**
@@ -31,6 +32,7 @@ class ClassScheduleController extends Controller
      */
     public function store(Request $request)
     {
+        //return $request->all();
         $user = Auth::guard('api')->user();
 
         if ($user) {
@@ -63,6 +65,7 @@ class ClassScheduleController extends Controller
                             }
                         },
                     ],
+                    'course_id'=>'required'
 
                ]);
 
@@ -88,7 +91,8 @@ class ClassScheduleController extends Controller
                     'time' => $request->time,
                     'batch' => $request->batch,
                     'category_id' => $request->category_id,
-                    'mentor_id'=>$request->mentor_id
+                    'mentor_id'=>$request->mentor_id,
+                    'course_id'=>$request->course_id
 
                 ];
 
@@ -274,5 +278,98 @@ class ClassScheduleController extends Controller
         return response()->json(['message' => 'You are unauthorized user'], 401);
     }
 
+  }
+
+  public function scheduleForStudent(Request $request){
+
+
+
+    $user = Auth::guard('api')->user();
+
+    if ($user) {
+
+        if ($user->userType === "STUDENT") {
+
+           
+
+            $validator = Validator::make($request->all(),[
+                'batch' => 'required',
+                'month'=>'required',
+                'year'=>'required',
+                'course_id'=>'required'
+           ]);
+
+            if ($validator->fails()){
+                return response()->json(["errors"=>$validator->errors()],400);
+            }
+
+           
+           if($user->approve=="1"){
+            
+          
+              $buyCourse=Orders::where("student_id",$user->id)->with(["course"])->get();
+             //return $buyCourse->course_id;
+
+
+              $courseIds = [];
+
+                foreach ($buyCourse as $item) {
+                    $courseId = $item['course_id'];
+                    if (!in_array($courseId, $courseIds)) {
+                        $courseIds[] = $courseId;
+                    }
+                }
+
+
+
+
+
+                $findSchedule=ClassSchedule::whereIn('course_id',$courseIds)
+                    ->where('batch', $request->batch)
+                    ->with(['category', 'mentor'])
+                    ->where(DB::raw('YEAR(date)'), $request->year)
+                    ->where(DB::raw('MONTH(date)'), $request->month)
+                    ->get();
+
+                return $findSchedule;
+
+                    $uniqueSchedules = [];
+                    $processedKeys = [];
+                    
+                    foreach ($findSchedule as $schedule) {
+                        $key = $schedule['time'] . $schedule['date'] . $schedule['batch'] . $schedule['category_id'];
+                    
+                        // Check if the key has been processed before
+                        if (!in_array($key, $processedKeys)) {
+                            $uniqueSchedules[] = $schedule;
+                            $processedKeys[] = $key;
+                        }
+                    }  
+                    return response()->json([
+                        "data"=>[$uniqueSchedules,$processedKeys]
+                    ]);
+                    
+
+                if($findSchedule){
+                    return response()->json([
+                        "data"=>$findSchedule
+                    ]);
+                }else{
+                    return response()->json(['message' => 'Record not found'], 404);
+                }
+
+           }else{
+            return response()->json(['message' => 'You are not approved user'], 401);
+           }
+
+
+           
+
+        }else {
+            return response()->json(['message' => 'You are unauthorized user'], 401);
+        }
+    }else {
+        return response()->json(['message' => 'You are unauthorized user'], 401);
+    }
   }
 }

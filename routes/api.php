@@ -125,12 +125,13 @@ Route::group([
     Route::resource('schedules', ClassScheduleController::class);
     Route::post("/schedules/all/admin", [ClassScheduleController::class, "scheduleForSuperAdmin"]);
     Route::post("/schedules/mentor", [ClassScheduleController::class, "scheduleForMentor"]);
-
+    Route::post("/schedules/fetch/student", [ClassScheduleController::class, "scheduleForStudent"]);
 
     //course api route
 
     Route::post("/course", [CourseController::class, 'courseAdd']);
     Route::get("/course", [CourseController::class, 'showAllCourse']);
+    Route::get("/course/superadmin/all", [CourseController::class, 'showAllCourseForSuperAdmin']);
     Route::put("/course/{id}", [CourseController::class, 'courseUpdate']);
     Route::delete("/course/{courseId}", [CourseController::class, 'deleteCourse']);
     Route::get("/course/{id}", [CourseController::class, 'showIndividualCourse']);

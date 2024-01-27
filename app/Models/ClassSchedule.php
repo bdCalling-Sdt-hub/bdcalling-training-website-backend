@@ -24,6 +24,7 @@ class ClassSchedule extends Model
         'date',
         'category_id',
         'batch',
-        'mentor_id'
+        'mentor_id',
+        'course_id'
       ];
 }
