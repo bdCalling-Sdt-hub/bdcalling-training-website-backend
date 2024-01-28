@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Session;
 use DB;
 use App\Models\Course;
 use Illuminate\Support\Facades\Redirect;
+use App\Models\User;
 class BkashTokenizePaymentController extends Controller
 {
     public function index()
@@ -40,15 +41,15 @@ class BkashTokenizePaymentController extends Controller
                 $request['amount'] = $request->price;
                 $request['merchantInvoiceNumber'] = $inv;
                 $request['callbackURL'] = config("bkash.callbackURL");
-        
+
                 $request_data_json = json_encode($request->all());
-        
+
                 $response =  BkashPaymentTokenize::cPayment($request_data_json);
                 //$response =  BkashPaymentTokenize::cPayment($request_data_json,1); //last parameter is your account number for multi account its like, 1,2,3,4,cont..
-        
+
                 //store paymentID and your account number for matching in callback request
                 // dd($response) //if you are using sandbox and not submit info to bkash use it for 1 response
-        
+
                 if (isset($response['bkashURL'])) return $response['bkashURL'];
                 else return redirect()->back()->with('error-alert2', $response['statusMessage']);
 
@@ -59,7 +60,7 @@ class BkashTokenizePaymentController extends Controller
             return response()->json(["message" => "You are unauthorized"], 401);
         }
 
-       
+
     }
 
     public function callBack(Request $request)
@@ -88,6 +89,7 @@ class BkashTokenizePaymentController extends Controller
 
                $courseName=Course::find($course_id);
 
+
                  DB::table("orders")->insert([
                     "amount"=>$amount,
                     "gateway_name"=> $gateway_name,
@@ -98,10 +100,16 @@ class BkashTokenizePaymentController extends Controller
                     "status"=>"Processing",
                     "currency"=>"BDT"
                  ]);
+
+                 $student=User::find($student_id);
+                 $student->course_id=$course_id;
+                 $student->approve=1;
+                 $student->update();
+
                 return Redirect::away('http://192.168.10.16:3000/payment/status/success');
                 //return BkashPaymentTokenize::success('Thank you for your payment', $response['trxID']);
             }
-           // return BkashPaymentTokenize::failure($response['statusMessage']);
+             //return BkashPaymentTokenize::failure($response['statusMessage']);
             return Redirect::away('http://192.168.10.16:3000/payment/status/failed');
         }else if ($request->status == 'cancel'){
             return BkashPaymentTokenize::cancel('Your payment is canceled');

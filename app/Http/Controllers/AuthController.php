@@ -85,6 +85,7 @@ class AuthController extends Controller
                 'image' => $fileUrl,
 
                 'batchNo' => $request->batchNo ? $request->batchNo : null,
+                'course_id'=>$request->course_id ? $request->course_id : null,
                 'category_id' => $request->category_id ? $request->category_id : null,
                 'dob' => $request->dob ? $request->dob : null,
                 'registrationDate' => $request->registrationDate ? $request->registrationDate : null,
@@ -241,7 +242,7 @@ class AuthController extends Controller
             ->first();
 
         if (!$user) {
-           
+
             return response()->json(['error' => 'Your verified code does not matched '], 401);
         } else {
             $user->update(['verified_email' => 1]);
@@ -430,6 +431,7 @@ class AuthController extends Controller
                 $userData->fullName = $request->fullName ? $request->fullName : $userData->fullName;
                 $userData->mobileNumber = $request->mobileNumber ? $request->mobileNumber : $userData->mobileNumber;
                 $userData->registrationDate = $request->registrationDate ? $request->registrationDate : $userData->registrationDate;
+                $userData->course_id = $request->course_id  ? $request->course_id  : $userData->course_id ;
                 $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
                 $userData->dob = $request->dob ? $request->dob : $userData->dob;
                 $userData->bloodGroup = $request->bloodGroup ? $request->bloodGroup : $userData->bloodGroup;

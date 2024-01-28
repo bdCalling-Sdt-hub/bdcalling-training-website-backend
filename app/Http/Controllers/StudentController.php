@@ -67,8 +67,8 @@ class StudentController extends Controller
                     $studentsQuery->where('batchNo', $batchNumber);
                 }
 
-               $students = $studentsQuery->with(['category'])->orderBy("created_at","desc")->paginate($perPage);
-              
+               $students = $studentsQuery->with(['category',"course"])->orderBy("created_at","desc")->paginate($perPage);
+
 
                 $students->appends([
                     'category_name' => $categoryName,
@@ -156,14 +156,14 @@ public function showStudent($id){
 
 public function getBuyCourseForStudent(){
     $user = Auth::guard('api')->user();
-   
+
     if ($user) {
         if ($user->userType === "STUDENT") {
-          
-            
+
+
             $orderedCourse=Orders::with(["course"])->where("student_id",$user->id)->where("status","Processing")->get();
             return $orderedCourse;
-            
+
 
         } else {
             return response()->json(["message" => "You are unauthorized"], 401);
@@ -172,6 +172,70 @@ public function getBuyCourseForStudent(){
         return response()->json(["message" => "You are unauthorized"], 401);
     }
 }
+
+
+public function newAndOldStudentChartData(Request $request){
+
+    $user = Auth::guard('api')->user();
+
+    if ($user) {
+        if ($user->userType === "SUPER ADMIN") {
+            $runningYear = now()->year;
+
+            $newStudentsByMonth = User::where('userType', 'STUDENT')
+                ->whereYear('created_at', $runningYear)
+                ->select(DB::raw("MONTH(created_at) as month"), DB::raw("COUNT(*) as student"))
+                ->groupBy(DB::raw("MONTH(created_at)"))
+                ->get();
+
+            // Map numeric months to month names
+            $monthNames = array_map(function ($month) {
+                return date('M', mktime(0, 0, 0, $month, 1));
+            }, range(1, 12));
+
+            // Fill in missing months with an empty count
+            $newStudent = [];
+            foreach ($monthNames as $monthName) {
+                $exists = $newStudentsByMonth->where('month', array_search($monthName, $monthNames) + 1)->first();
+                $newStudent[] = ['month' => $monthName, 'student' => $exists ? $exists->student : ''];
+            }
+
+            //////////////////////////
+
+            $oldStudentsByYear = User::where('userType', 'STUDENT')
+                ->whereYear('created_at', '<=', $runningYear - 1)
+                ->select(DB::raw("YEAR(created_at) as year"), DB::raw("COUNT(*) as student"))
+                ->groupBy(DB::raw("YEAR(created_at)"))
+                ->get();
+
+            // Fill in missing years with an empty count
+            for ($year = $runningYear - 1; $year >= $runningYear - 12; $year--) {
+                $exists = $oldStudentsByYear->where('year', $year)->first();
+                if (!$exists) {
+                    $oldStudentsByYear->push(['year' => $year, 'student' => '']);
+                }
+            }
+
+            // Sort the result by year
+            $oldStudentsByYear = $oldStudentsByYear->sortByDesc('year')->values()->all();
+
+
+
+            return response()->json([
+                "old"=>$oldStudentsByYear,
+                "new"=>$newStudent
+            ]);
+        }else{
+            return response()->json(["message"=>"You are unauthorized"],401);
+        }
+    }else{
+        return response()->json(["message"=>"You are unauthorized"],401);
+    }
+
+
+
+}
+
 
 
 }

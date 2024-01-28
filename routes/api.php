@@ -99,7 +99,7 @@ Route::group([
     Route::get("/students/all", [StudentController::class, "allStudentList"]);
     Route::get("/students/{id}", [StudentController::class, "showStudent"]);
     Route::get("/students/buy/courses",[StudentController::class,"getBuyCourseForStudent"]);
-
+    Route::get("/students/chart/data", [StudentController::class, "newAndOldStudentChartData"]);
 
 
 
@@ -172,7 +172,7 @@ Route::group([
 
     Route::get('/orders', [OrderController::class, 'getAllOrders']);
     Route::get('/incomes', [OrderController::class, 'calculateIncome']);
-
+    Route::get('/incomes/chart', [OrderController::class, 'incomeShowByChart']);
 
 
 

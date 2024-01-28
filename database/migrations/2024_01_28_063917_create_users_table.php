@@ -27,7 +27,7 @@ return new class extends Migration
             $table->date('registrationDate')->nullable();
             $table->date('dob')->nullable();
 
-
+            $table->string("course_id")->nullable();
             $table->string("category_id")->nullable();
             $table->string('bloodGroup')->nullable();
             $table->string('address')->nullable();

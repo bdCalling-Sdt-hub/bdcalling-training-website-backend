@@ -22,6 +22,10 @@ class User extends Authenticatable implements JWTSubject
     // {
     //     return $this->hasOne(Mentor::class, 'register_id');
     // }
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id');
+    }
 
     public function category()
     {
@@ -52,6 +56,7 @@ class User extends Authenticatable implements JWTSubject
 
 
         'batchNo',
+        'course_id',
         'category_id',
         'dob',
         'registrationDate',

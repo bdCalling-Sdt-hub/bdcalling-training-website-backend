@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -126,7 +127,7 @@ class ClassController extends Controller
          "data"=>$courseClasses
         ]);
 
- 
+
     }
 
 
@@ -195,17 +196,17 @@ class ClassController extends Controller
 
                 if ($class) {
                     $courseModuleTitle = CourseClass::where("course_id", $request->course_id)
-                       
+
                         ->where("module_title", strtolower($request->module_title))
                         ->get();
 
                         //return count($courseModuleTitle);
-                    
 
-                  
+
+
 
                         $class->course_id = $request->course_id;
-                       
+
                         $class->module_title = $request->module_title;
                         $class->module_no = $request->module_no;
                         $class->module_class = json_encode($request->module_class);
@@ -214,7 +215,7 @@ class ClassController extends Controller
                             "message" => "Class edit successfully",
                             "data" => $class
                         ], 200);
-                    
+
                 } else {
                     return response()->json(["message" => "Class not found"], 404);
                 }
