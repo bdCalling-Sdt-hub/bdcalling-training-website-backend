@@ -23,8 +23,9 @@
 </style>
     </head>
     <body class="antialiased">
+        <h1>server running successfully</h1>
 
-        <div class="container pt-4">
+        {{-- <div class="container pt-4">
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card">
@@ -44,7 +45,7 @@
                         <div class="card-footer p-4" >
                             <video id="videoPreview" src="" controls style="width: 100%; height: auto"></video>
                         </div>
-                     
+
                     </div>
                 </div>
             </div>
@@ -59,7 +60,7 @@
 
         <script type="text/javascript">
 
-            
+
 
             let browseFile = $('#browseFile');
             let resumable = new Resumable({
@@ -75,8 +76,8 @@
 
             resumable.assignBrowse(browseFile[0]);
 
-            resumable.on('fileAdded', function (file) { 
-                
+            resumable.on('fileAdded', function (file) {
+
                 //console.log(file);// trigger when file picked
                 showProgress();
                 resumable.upload() // to actually start uploading.
@@ -114,6 +115,6 @@
             function hideProgress() {
                 progress.hide();
             }
-        </script>
+        </script> --}}
     </body>
 </html>
