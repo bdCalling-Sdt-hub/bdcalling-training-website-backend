@@ -85,7 +85,7 @@ class AuthController extends Controller
                 'image' => $fileUrl,
 
                 'batchNo' => $request->batchNo ? $request->batchNo : null,
-                'course_id'=>$request->course_id ? $request->course_id : null,
+                'course_id' => $request->course_id ? $request->course_id : null,
                 'category_id' => $request->category_id ? $request->category_id : null,
                 'dob' => $request->dob ? $request->dob : null,
                 'registrationDate' => $request->registrationDate ? $request->registrationDate : null,
@@ -94,7 +94,7 @@ class AuthController extends Controller
                 'address' => $request->address ? $request->address : null,
                 'designation' => $request->designation ? $request->designation : null,
                 'expert' => $request->expert ? $request->expert : null,
-                'approve' => $request->approve ? $request->approve:0
+                'approve' => $request->approve ? $request->approve : 0
             ];
 
             $user = User::create($userData);
@@ -337,6 +337,7 @@ class AuthController extends Controller
                 $userData->fullName = $request->fullName ? $request->fullName : $userData->fullName;
                 $userData->mobileNumber = $request->mobileNumber ? $request->mobileNumber : $userData->mobileNumber;
                 $userData->registrationDate = $request->registrationDate ? $request->registrationDate : $userData->registrationDate;
+                $userData->course_id = $request->course_id  ? $request->course_id  : $userData->course_id;
                 $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
                 $userData->dob = $request->dob ? $request->dob : $userData->dob;
                 $userData->bloodGroup = $request->bloodGroup ? $request->bloodGroup : $userData->bloodGroup;
@@ -386,6 +387,7 @@ class AuthController extends Controller
                 $userData = User::find($id);
                 $userData->fullName = $request->fullName;
                 $userData->mobileNumber = $request->mobileNumber;
+
                 $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
                 $userData->designation = $request->designation ? $request->designation : $userData->designation;
                 $userData->expert = $request->expert ? $request->expert : $userData->expert;
@@ -431,7 +433,7 @@ class AuthController extends Controller
                 $userData->fullName = $request->fullName ? $request->fullName : $userData->fullName;
                 $userData->mobileNumber = $request->mobileNumber ? $request->mobileNumber : $userData->mobileNumber;
                 $userData->registrationDate = $request->registrationDate ? $request->registrationDate : $userData->registrationDate;
-                $userData->course_id = $request->course_id  ? $request->course_id  : $userData->course_id ;
+                $userData->course_id = $request->course_id  ? $request->course_id  : $userData->course_id;
                 $userData->category_id = $request->category_id ? $request->category_id : $userData->category_id;
                 $userData->dob = $request->dob ? $request->dob : $userData->dob;
                 $userData->bloodGroup = $request->bloodGroup ? $request->bloodGroup : $userData->bloodGroup;
@@ -554,22 +556,20 @@ class AuthController extends Controller
     }
 
 
-    public function deleteProfile($id){
+    public function deleteProfile($id)
+    {
         $user = $this->guard()->user();
         if ($user?->userType == "SUPER ADMIN") {
             $userData = User::find($id);
             $userData->delete();
             return response()->json([
                 "message" => "Profile deleted successfully"
-            ],200);
-
-
-        }else {
+            ], 200);
+        } else {
             return response()->json([
                 "message" => "You are not authorized!"
             ], 401);
         }
-
     }
 
     // public function logout()
@@ -624,7 +624,8 @@ class AuthController extends Controller
 
 
 
-    public function accountApproveByAdmin($id){
+    public function accountApproveByAdmin($id)
+    {
         $user = Auth::guard('api')->user();
 
         if ($user) {
@@ -632,30 +633,27 @@ class AuthController extends Controller
             if ($user->userType === "SUPER ADMIN") {
 
                 $dataFind = User::find($id);
-                if($dataFind){
+                if ($dataFind) {
                     $dataFind->approve = true;
                     $dataFind->update();
                     return response()->json([
-                        "message"=>"Account approved successfully"
-                    ],200);
-
-                }else{
+                        "message" => "Account approved successfully"
+                    ], 200);
+                } else {
                     return response()->json([
-                        "message"=>"Record not found"
-                    ],404);
-
+                        "message" => "Record not found"
+                    ], 404);
                 }
-
-            }else{
-                return response()->json(["message"=>"You are unauthorized"],401);
+            } else {
+                return response()->json(["message" => "You are unauthorized"], 401);
             }
-        }else{
-            return response()->json(["message"=>"You are unauthorized"],401);
+        } else {
+            return response()->json(["message" => "You are unauthorized"], 401);
         }
+    }
 
-}
-
-public function accountUnapproveByAdmin($id){
+    public function accountUnapproveByAdmin($id)
+    {
         $user = Auth::guard('api')->user();
 
         if ($user) {
@@ -663,29 +661,22 @@ public function accountUnapproveByAdmin($id){
             if ($user->userType === "SUPER ADMIN") {
 
                 $dataFind = User::find($id);
-                if($dataFind){
+                if ($dataFind) {
                     $dataFind->approve = false;
                     $dataFind->update();
                     return response()->json([
-                        "message"=>"Account inactived successfully"
-                    ],200);
-
-                }else{
+                        "message" => "Account inactived successfully"
+                    ], 200);
+                } else {
                     return response()->json([
-                        "message"=>"Record not found"
-                    ],404);
-
+                        "message" => "Record not found"
+                    ], 404);
                 }
-
-            }else{
-                return response()->json(["message"=>"You are unauthorized"],401);
+            } else {
+                return response()->json(["message" => "You are unauthorized"], 401);
             }
-        }else{
-            return response()->json(["message"=>"You are unauthorized"],401);
+        } else {
+            return response()->json(["message" => "You are unauthorized"], 401);
         }
-
     }
-
-
-
 }
