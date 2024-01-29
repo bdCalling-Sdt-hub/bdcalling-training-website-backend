@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use DB;
 use App\Models\Course;
+use App\Models\Orders;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\User;
 
@@ -90,21 +91,32 @@ class BkashTokenizePaymentController extends Controller
                 $course = Course::find($course_id);
 
 
-                $data = [
-                    "amount" => $amount,
-                    "gateway_name" => $gateway_name,
-                    "course_id" => $course_id,
-                    "course_name" => $course->courseName,
-                    "transaction_id" => $response['trxID'],
-                    "student_id" => $student_id,
-                    "status" => "Processing",
-                    "currency" => "BDT"
-                ];
-                Log::info($data);
+                // $data = [
+                //     "amount" => $amount,
+                //     "gateway_name" => $gateway_name,
+                //     "course_id" => $course_id,
+                //     "course_name" => $course->courseName,
+                //     "transaction_id" => $response['trxID'],
+                //     "student_id" => $student_id,
+                //     "status" => "Processing",
+                //     "currency" => "BDT"
+                // ];
+                //Log::info($data);
+
+                Orders::create([
+                    'amount' => $amount,
+                    'gateway_name' => $gateway_name,
+                    'course_id' => $course_id,
+                    'course_name' => $course["courseName"],
+                    'transaction_id' => $response['trxID'],
+                    'student_id' => $student_id,
+                    'status' => "Processing",
+                    'currency' => "BDT",
+
+                ]);
 
 
-
-                DB::table("orders")->insert($data);
+                //DB::table("orders")->insert($data);
 
                 $student = User::find($student_id);
                 $student->course_id = $course_id;
