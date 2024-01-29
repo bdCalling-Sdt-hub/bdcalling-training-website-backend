@@ -91,6 +91,7 @@ class BkashTokenizePaymentController extends Controller
                 $course = Course::find($course_id);
 
 
+
                 // $data = [
                 //     "amount" => $amount,
                 //     "gateway_name" => $gateway_name,
@@ -107,7 +108,7 @@ class BkashTokenizePaymentController extends Controller
                     'amount' => $amount,
                     'gateway_name' => $gateway_name,
                     'course_id' => $course_id,
-                    'course_name' => $course["courseName"],
+                    'course_name' => "something",
                     'transaction_id' => $response['trxID'],
                     'student_id' => $student_id,
                     'status' => "Processing",
