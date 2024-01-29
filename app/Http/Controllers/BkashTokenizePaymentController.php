@@ -33,10 +33,10 @@ class BkashTokenizePaymentController extends Controller
 
               
 
-                cache(['bkash_amount' => $request->price], now()->addMinutes(10));
-                cache(['gateway_name' => $request->gateway_name], now()->addMinutes(10));
-                cache(['course_id' => $request->course_id], now()->addMinutes(10));
-                cache(['student_id' => $user["id"]], now()->addMinutes(10));
+                cache(['bkash_amount' => $request->price], now()->addMinutes(1));
+                cache(['gateway_name' => $request->gateway_name], now()->addMinutes(1));
+                cache(['course_id' => $request->course_id], now()->addMinutes(1));
+                cache(['student_id' => $user["id"]], now()->addMinutes(1));
 
 
                 //cache(['bkash_amount' => $request->price], now()->addMinutes(10));
