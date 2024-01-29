@@ -87,14 +87,14 @@ class BkashTokenizePaymentController extends Controller
                $student_id=cache("student_id");
                $gateway_name=cache("gateway_name");
 
-               $courseName=Course::find($course_id);
+               $course=Course::find($course_id);
 
 
                  DB::table("orders")->insert([
                     "amount"=>$amount,
                     "gateway_name"=> $gateway_name,
                     "course_id"=> $course_id,
-                    "course_name"=>$courseName->courseName,
+                    "course_name"=>$course->courseName,
                     "transaction_id"=>$response['trxID'],
                     "student_id"=>$student_id,
                     "status"=>"Processing",
