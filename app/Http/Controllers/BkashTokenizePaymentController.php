@@ -13,6 +13,7 @@ use App\Models\Course;
 use App\Models\Orders;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 
 class BkashTokenizePaymentController extends Controller
@@ -31,12 +32,16 @@ class BkashTokenizePaymentController extends Controller
 
             if ($user->userType === "STUDENT") {
 
-              
+               Cache::put("bkash_amount",$request->price,now()->addMinutes(1));
+               Cache::put("gateway_name",$request->gateway_name,now()->addMinutes(1));
+               Cache::put("course_id",$request->course_id,now()->addMinutes(1));
+               Cache::put("student_id",$user["id"],now()->addMinutes(1));
+               
 
-                cache(['bkash_amount' => $request->price], now()->addMinutes(1));
-                cache(['gateway_name' => $request->gateway_name], now()->addMinutes(1));
-                cache(['course_id' => $request->course_id], now()->addMinutes(1));
-                cache(['student_id' => $user["id"]], now()->addMinutes(1));
+                // cache(['bkash_amount' => $request->price], now()->addMinutes(1));
+                // cache(['gateway_name' => $request->gateway_name], now()->addMinutes(1));
+                // cache(['course_id' => $request->course_id], now()->addMinutes(1));
+                // cache(['student_id' => $user["id"]], now()->addMinutes(1));
 
 
                 //cache(['bkash_amount' => $request->price], now()->addMinutes(10));
@@ -87,13 +92,16 @@ class BkashTokenizePaymentController extends Controller
                  * for refund need to store
                  * paymentID and trxID
                  * */
+               
+                 $amount=Cache::get("bkash_amount");
+                 $course_id=Cache::get("course_id");
+                 $student_id=Cache::get("student_id");
+                 $gateway_name=Cache::get("gateway_name");
 
-                
-
-                $amount = cache('bkash_amount');
-                $course_id = cache("course_id");
-                $student_id = cache("student_id");
-                $gateway_name = cache("gateway_name");
+                // $amount = cache('bkash_amount');
+                // $course_id = cache("course_id");
+                // $student_id = cache("student_id");
+                // $gateway_name = cache("gateway_name");
 
                 return response()->json([
                     $amount, $course_id, $student_id, $gateway_name
