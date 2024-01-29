@@ -31,10 +31,14 @@ class BkashTokenizePaymentController extends Controller
 
             if ($user->userType === "STUDENT") {
 
+                session("bkash_amount", $request->price);
+
                 cache(['bkash_amount' => $request->price], now()->addMinutes(10));
                 cache(['gateway_name' => $request->gateway_name], now()->addMinutes(10));
                 cache(['course_id' => $request->course_id], now()->addMinutes(10));
                 cache(['student_id' => $user["id"]], now()->addMinutes(10));
+
+
                 //cache(['bkash_amount' => $request->price], now()->addMinutes(10));
 
                 $inv = uniqid();
@@ -83,16 +87,21 @@ class BkashTokenizePaymentController extends Controller
                  * for refund need to store
                  * paymentID and trxID
                  * */
+
+                $bkash_amount = session("bkash_amount");
+
+                return $bkash_amount;
+
                 $amount = cache('bkash_amount');
                 $course_id = cache("course_id");
                 $student_id = cache("student_id");
                 $gateway_name = cache("gateway_name");
 
-               return response()->json([
-                    $amount,$course_id,$student_id,$gateway_name
-               ]);
+                return response()->json([
+                    $amount, $course_id, $student_id, $gateway_name
+                ]);
 
-                $orders=Orders::create([
+                $orders = Orders::create([
                     'amount' => $amount,
                     'gateway_name' => $gateway_name,
                     'course_id' => $course_id,
@@ -104,11 +113,11 @@ class BkashTokenizePaymentController extends Controller
                 ]);
 
                 return response()->json([
-                    "data"=>$orders,
+                    "data" => $orders,
 
                 ]);
 
-               // $course = Course::find($course_id);
+                // $course = Course::find($course_id);
 
 
 
