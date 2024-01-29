@@ -90,7 +90,7 @@ class BkashTokenizePaymentController extends Controller
 
                 $bkash_amount = session("bkash_amount");
 
-                return $bkash_amount;
+                return 500;
 
                 $amount = cache('bkash_amount');
                 $course_id = cache("course_id");
