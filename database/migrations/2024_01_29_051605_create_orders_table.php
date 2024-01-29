@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string("gateway_name");
             $table->string("course_id");
-            $table->string("course_name");
             $table->string("amount");
             $table->string("transaction_id");
             $table->string("student_id");

@@ -88,14 +88,25 @@ class BkashTokenizePaymentController extends Controller
                 $student_id = cache("student_id");
                 $gateway_name = cache("gateway_name");
 
-                return response()->json([
-                    "amount"=>$amount,
-                    "course"=>$course_id,
-                    "student"=>$student_id,
-                    "gate"=>$gateway_name
+
+
+                $orders=Orders::create([
+                    'amount' => $amount,
+                    'gateway_name' => $gateway_name,
+                    'course_id' => $course_id,
+                    'transaction_id' => $response['trxID'],
+                    'student_id' => $student_id,
+                    'status' => "Processing",
+                    'currency' => "BDT",
+
                 ]);
 
-                $course = Course::find($course_id);
+                return response()->json([
+                    "data"=>$orders,
+
+                ]);
+
+               // $course = Course::find($course_id);
 
 
 
@@ -111,17 +122,7 @@ class BkashTokenizePaymentController extends Controller
                 // ];
                 //Log::info($data);
 
-                Orders::create([
-                    'amount' => $amount,
-                    'gateway_name' => $gateway_name,
-                    'course_id' => $course_id,
-                    'course_name' => "something",
-                    'transaction_id' => $response['trxID'],
-                    'student_id' => $student_id,
-                    'status' => "Processing",
-                    'currency' => "BDT",
 
-                ]);
 
 
                 //DB::table("orders")->insert($data);

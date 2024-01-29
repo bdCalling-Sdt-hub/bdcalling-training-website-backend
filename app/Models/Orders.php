@@ -24,7 +24,6 @@ class Orders extends Model
 
         "gateway_name",
         "course_id",
-        "course_name",
         "amount",
         "transaction_id",
         "student_id",
