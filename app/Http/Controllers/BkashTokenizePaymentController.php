@@ -88,7 +88,9 @@ class BkashTokenizePaymentController extends Controller
                 $student_id = cache("student_id");
                 $gateway_name = cache("gateway_name");
 
-
+               return response()->json([
+                    $amount,$course_id,$student_id,$gateway_name
+               ]);
 
                 $orders=Orders::create([
                     'amount' => $amount,
