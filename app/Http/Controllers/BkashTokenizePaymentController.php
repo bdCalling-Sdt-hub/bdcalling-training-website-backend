@@ -75,6 +75,21 @@ class BkashTokenizePaymentController extends Controller
 
     public function callBack(Request $request)
     {
+
+        $amount=Cache::get("bkash_amount");
+                 $course_id=Cache::get("course_id");
+                 $student_id=Cache::get("student_id");
+                 $gateway_name=Cache::get("gateway_name");
+
+                // $amount = cache('bkash_amount');
+                // $course_id = cache("course_id");
+                // $student_id = cache("student_id");
+                // $gateway_name = cache("gateway_name");
+
+                return response()->json([
+                    $amount, $course_id, $student_id, $gateway_name
+                ]);
+
         //callback request params
         // paymentID=your_payment_id&status=success&apiVersion=1.2.0-beta
         //using paymentID find the account number for sending params
