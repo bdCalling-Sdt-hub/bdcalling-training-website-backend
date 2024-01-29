@@ -31,7 +31,7 @@ class BkashTokenizePaymentController extends Controller
 
             if ($user->userType === "STUDENT") {
 
-                session("bkash_amount", $request->price);
+              
 
                 cache(['bkash_amount' => $request->price], now()->addMinutes(10));
                 cache(['gateway_name' => $request->gateway_name], now()->addMinutes(10));
@@ -88,9 +88,7 @@ class BkashTokenizePaymentController extends Controller
                  * paymentID and trxID
                  * */
 
-                $bkash_amount = session("bkash_amount");
-
-                return 500;
+                
 
                 $amount = cache('bkash_amount');
                 $course_id = cache("course_id");
