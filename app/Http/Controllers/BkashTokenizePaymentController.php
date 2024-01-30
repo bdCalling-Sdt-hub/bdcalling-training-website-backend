@@ -36,7 +36,7 @@ class BkashTokenizePaymentController extends Controller
                Cache::put("gateway_name",$request->gateway_name,now()->addMinutes(5));
                Cache::put("course_id",$request->course_id,now()->addMinutes(5));
                Cache::put("student_id",$user["id"],now()->addMinutes(5));
-               
+
 
                 // cache(['bkash_amount' => $request->price], now()->addMinutes(1));
                 // cache(['gateway_name' => $request->gateway_name], now()->addMinutes(1));
@@ -76,7 +76,7 @@ class BkashTokenizePaymentController extends Controller
     public function callBack(Request $request)
     {
 
-                 
+
         //callback request params
         // paymentID=your_payment_id&status=success&apiVersion=1.2.0-beta
         //using paymentID find the account number for sending params
@@ -94,15 +94,15 @@ class BkashTokenizePaymentController extends Controller
                  * for refund need to store
                  * paymentID and trxID
                  * */
-               
+
                  $amount=Cache::get("bkash_amount");
                  $course_id=Cache::get("course_id");
                  $student_id=Cache::get("student_id");
                  $gateway_name=Cache::get("gateway_name");
 
-                
 
-              
+
+
                 $orders = Orders::create([
                     'amount' => $amount,
                     'gateway_name' => $gateway_name,
@@ -145,11 +145,11 @@ class BkashTokenizePaymentController extends Controller
                 $student->approve = 1;
                 $student->update();
 
-                return Redirect::away('http://192.168.10.16:3000/payment/status/success');
+                return Redirect::away('https://bdcallingacademy.com/payment/status/success');
                 //return BkashPaymentTokenize::success('Thank you for your payment', $response['trxID']);
             }
             //return BkashPaymentTokenize::failure($response['statusMessage']);
-            return Redirect::away('http://192.168.10.16:3000/payment/status/failed');
+            return Redirect::away('https://bdcallingacademy.com/payment/status/failed');
         } else if ($request->status == 'cancel') {
             return BkashPaymentTokenize::cancel('Your payment is canceled');
         } else {
