@@ -24,14 +24,22 @@ class AuthController extends Controller
 
     {
 
+       
+
 
         $user = User::where('email', $request->email)
             ->where('verified_email', 0)
             ->first();
 
         if ($user) {
+              $token=null;
+            if($request->signAs=="website"){
+                $token = "http://192.168.10.16:3000/verify-email/";
+            }else{
+                $token = "http://192.168.10.03:5000/dashboard/verify-email/";
+            }
 
-            $token = "http://192.168.10.16:3000/verify-email/";
+
             $random = Str::random(40);
             Mail::to($request->email)->send(new DemoMail($token . $random));
             $user->update(['verified_code' => $random]);
@@ -98,7 +106,15 @@ class AuthController extends Controller
             ];
 
             $user = User::create($userData);
-            $token = "http://192.168.10.16:3000/verify-email/";
+
+            $token=null;
+            if($request->signAs=="website"){
+                $token = "http://192.168.10.16:3000/verify-email/";
+            }else{
+                $token = "http://192.168.10.03:5000/dashboard/verify-email/";
+            }
+
+
             Mail::to($request->email)->send(new DemoMail($token . $user->verified_code));
             return response()->json([
                 'message' => 'Please check your email to valid your email',
