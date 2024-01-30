@@ -8,7 +8,7 @@
 </head>
 <body>
    <div class="" style="background: gray;padding:20px;width:500px">
-        <h1>Email from: freelancerrtushar@gmail.com</h1>
+        <h1>Email from: learn.bdcalling@gmail.com</h1>
         <h1>Your one time Code is {{ $mailData }}</h1>
         <h2>Thank you</h2>
    </div>
