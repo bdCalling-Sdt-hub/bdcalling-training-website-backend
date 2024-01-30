@@ -24,7 +24,7 @@ class AuthController extends Controller
 
     {
 
-       
+
 
 
         $user = User::where('email', $request->email)
@@ -34,9 +34,9 @@ class AuthController extends Controller
         if ($user) {
               $token=null;
             if($request->signAs=="website"){
-                $token = "http://192.168.10.16:3000/verify-email/";
+                $token = "https://bdcallingacademy.com/verify-email/";
             }else{
-                $token = "http://192.168.10.03:5000/dashboard/verify-email/";
+                $token = "https://app.bdcallingacademy.com/dashboard/verify-email/";
             }
 
 
@@ -109,9 +109,9 @@ class AuthController extends Controller
 
             $token=null;
             if($request->signAs=="website"){
-                $token = "http://192.168.10.16:3000/verify-email/";
+                $token = "https://bdcallingacademy.com/verify-email/";
             }else{
-                $token = "http://192.168.10.03:5000/dashboard/verify-email/";
+                $token = "https://app.bdcallingacademy.com/dashboard/verify-email/";
             }
 
 
