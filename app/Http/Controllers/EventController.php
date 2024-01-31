@@ -56,8 +56,8 @@ class EventController extends Controller
                 $validator = Validator::make($request->all(), [
                     'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5048',
                     'date' => 'required | date',
-                    'starttime' => 'required|date_format:H:i',
-                    'endtime' => 'required|date_format:H:i',
+                    'starttime' => 'required',
+                    'endtime' => 'required',
                     'officeLocation' => 'required|string',
                     'courseName' => 'required',
                     'description'=>'required',
