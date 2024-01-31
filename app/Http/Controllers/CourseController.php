@@ -19,6 +19,7 @@ class CourseController extends Controller
 
 
 
+
         $user = Auth::guard('api')->user();
 
         if ($user) {
@@ -152,13 +153,26 @@ class CourseController extends Controller
                     return response()->json(['message' => 'Course not found'], 404);
                 }else{
 
-                    $course['mentorId'] = json_decode($course['mentorId'], true);
 
+                    $course['mentorId'] = json_decode($course['mentorId'], true);
+                    // $course['mentorId'] = explode(',', $course['mentorId']);
+                    // $course['mentorId'] = array_map('trim', $course['mentorId']);
     // Convert careeropportunities field to an array
     $course['careeropportunities'] = json_decode($course['careeropportunities'], true);
-
-    // Convert carriculum field to an array
     $course['carriculum'] = json_decode($course['carriculum'], true);
+   
+    // Convert carriculum field to an array
+    //$course['carriculum'] = json_decode($course['carriculum'], true);
+    // return is_string($course['carriculum']);
+    // if (is_string($course['carriculum'])) {
+    //     $course['carriculum'] = explode(',', $course['carriculum']);
+    //     $course['carriculum'] = array_map('trim', $course['carriculum']);
+    // }
+
+    // $course['carriculum'] = explode(',', $course['carriculum']);
+
+
+    // $course['carriculum'] = array_map('trim', $course['carriculum']);
 
     // Convert job_position field to an array
     $course['job_position'] = json_decode($course['job_position'], true);
@@ -445,5 +459,5 @@ public function showAllCourseForSuperAdmin(Request $request)
         return Auth::guard();
     }
 
-    
+
 }

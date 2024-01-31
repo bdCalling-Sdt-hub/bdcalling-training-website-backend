@@ -21,7 +21,7 @@ return new class extends Migration
             $table->date("startDate");
             $table->string("courseTimeLength");
             $table->string("price");
-            $table->json("mentorId");
+            $table->text("mentorId");
             $table->integer("maxStudentLength");
             $table->string("skillLevel");
             $table->string("address");
@@ -33,10 +33,10 @@ return new class extends Migration
             $table->string("coupon_code_price")->nullable();
             $table->string("seat_left");
             $table->date("end_date");
-            $table->json("careeropportunities");
-            $table->json("carriculum");
-            $table->json("job_position");
-            $table->json("software");
+            $table->text("careeropportunities");
+            $table->text("carriculum");
+            $table->text("job_position");
+            $table->text("software");
             $table->boolean("popular")->default(false);
             $table->boolean("publish")->default(false);
             $table->timestamps();
