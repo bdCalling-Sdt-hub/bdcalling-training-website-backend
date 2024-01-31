@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\DemoMail;
+use App\Mail\DashboardLinkMail;
 
 class BkashTokenizePaymentController extends Controller
 {
@@ -146,7 +146,7 @@ class BkashTokenizePaymentController extends Controller
                 $student->approve = 1;
                 $student->update();
 
-                Mail::to($student->email)->send(new DemoMail("https://app.bdcallingacademy.com"));
+                Mail::to($student->email)->send(new DashboardLinkMail("https://app.bdcallingacademy.com"));
 
 
                 return Redirect::away('https://bdcallingacademy.com/payment/status/success');
