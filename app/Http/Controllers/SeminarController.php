@@ -51,7 +51,7 @@ class SeminarController extends Controller
 
            ];
 
-           Mail::to("freelancerrtushar@gmail.com")->send(new SeminerMail($mailData));
+           Mail::to("learn.bdcalling@gmail.com")->send(new SeminerMail($mailData));
 
            //dd("Email send successfully");
            return response()->json(["data"=>"Your Email sent successfully"]);

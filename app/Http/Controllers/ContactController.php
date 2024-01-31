@@ -52,7 +52,7 @@ class ContactController extends Controller
 
            ];
 
-           Mail::to("freelancerrtushar@gmail.com")->send(new ContactMail($mailData));
+           Mail::to("learn.bdcalling@gmail.com")->send(new ContactMail($mailData));
 
            //dd("Email send successfully");
            return response()->json(["data"=>"Your Contact information sent successfully"]);
