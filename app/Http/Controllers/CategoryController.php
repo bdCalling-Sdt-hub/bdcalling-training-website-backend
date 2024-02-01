@@ -77,6 +77,7 @@ class CategoryController extends Controller
             if ($user->userType === "SUPER ADMIN") {
                 $validator = Validator::make($request->all(), [
                     'category_name' => 'required|string|min:2|max:100',
+                    'department_id'=>'required'
                 ]);
 
                 if ($validator->fails()) {
@@ -87,16 +88,11 @@ class CategoryController extends Controller
 
                 //$category=Category::where("category_name",$request->category_name)->first();
                 if ($category) {
-
-
-
-                    if ($category["category_name"] === strtolower($request->category_name)) {
-                        return response()->json(["message" => "Category already exists"], 409);
-                    } else {
-                        $category->category_name = $request->category_name;
+                        $category->category_name =strtolower($request->category_name)?strtolower($request->category_name):$category->category_name;
+                        $category->department_id=$request->department_id?$request->department_id:$category->department_id;
                         $category->update();
                         return response()->json(["message" => "Category updated successfully", "data" => $category], 200);
-                    }
+
                 } else {
                     return response()->json(["message" => "Category doesn't exists"], 409);
                 }

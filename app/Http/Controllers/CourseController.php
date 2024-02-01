@@ -110,7 +110,7 @@ class CourseController extends Controller
 
                         ]);
 
-                        return response()->json(["message" => "Course created successfully"], 200);
+                        return response()->json(["message" => "Course created successfully","data"=>$result], 200);
                     }
                 }
             } else {
@@ -160,7 +160,7 @@ class CourseController extends Controller
     // Convert careeropportunities field to an array
     $course['careeropportunities'] = json_decode($course['careeropportunities'], true);
     $course['carriculum'] = json_decode($course['carriculum'], true);
-   
+
     // Convert carriculum field to an array
     //$course['carriculum'] = json_decode($course['carriculum'], true);
     // return is_string($course['carriculum']);
