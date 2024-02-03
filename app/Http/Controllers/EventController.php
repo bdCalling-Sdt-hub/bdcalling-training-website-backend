@@ -160,8 +160,8 @@ class EventController extends Controller
 
                 $rules=[
                     'date' => 'required | date',
-                    'starttime' => 'required|date_format:H:i|after:08:00|before:22:00',
-                    'endtime' => 'required|date_format:H:i|after:08:00|before:22:00',
+                    'starttime' => 'required',
+                    'endtime' => 'required',
                     'officeLocation' => 'required|string',
                     'courseName' => 'required',
                     'description'=>'required',
