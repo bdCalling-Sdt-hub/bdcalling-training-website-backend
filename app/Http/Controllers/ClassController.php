@@ -44,11 +44,6 @@ class ClassController extends Controller
 
 
 
-                if (count($courseModuleTitle) > 0) {
-                    return response()->json([
-                        "message" => "This module_title already exists"
-                    ], 409);
-                }
 
                 $result = CourseClass::create([
                     "course_id" => $request->course_id,
