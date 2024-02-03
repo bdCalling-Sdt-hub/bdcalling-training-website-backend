@@ -26,15 +26,7 @@ class CourseController extends Controller
 
             if ($user->userType === "SUPER ADMIN") {
 
-
-                $course = Course::where("courseName", strtolower($request->courseName))
-                ->where("status",$request->status)
-                ->first();
-
-                if ($course) {
-                    return response()->json(["message" => "This Course already exists"], 409);
-                } else {
-                    $validator = Validator::make($request->all(), [
+                       $validator = Validator::make($request->all(), [
                         'category_id' => 'required',
                         'courseName' => 'required|string|min:2|max:100',
                         'language' => 'required|string|min:2|max:100',
@@ -112,7 +104,10 @@ class CourseController extends Controller
 
                         return response()->json(["message" => "Course created successfully","data"=>$result], 200);
                     }
-                }
+
+
+
+
             } else {
                 return response()->json(["message" => "You are unauthorized"], 401);
             }
