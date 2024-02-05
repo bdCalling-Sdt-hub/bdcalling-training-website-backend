@@ -207,7 +207,8 @@ class AuthController extends Controller
                 $user->makeHidden(['verified_email', 'verified_code']);
                 return response()->json([
                     //hour*seconds
-                    'user' => $user
+                    'user' => $user,
+                    "uservalid"=>true
 
 
                 ]);

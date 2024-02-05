@@ -384,7 +384,7 @@ public function showAllCourseForSuperAdmin(Request $request)
                 $course->job_position =$request->job_position?json_encode($request->job_position):json_encode($course->job_position);
                 $course->software =$request->software?json_encode($request->software):json_encode($course->software);
                 $course->popular=$request->popular?$request->popular:$course->popular;
-                $course->publish=$request->publish?$request->publish: $course->publish;
+                $course->publish=$request->publish?$request->publish:$course->publish;
 
 
                 if ($request->hasFile('courseThumbnail')) {
