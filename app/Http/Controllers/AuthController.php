@@ -24,10 +24,7 @@ class AuthController extends Controller
 
     {
 
-
-
-
-        $user = User::where('email', $request->email)
+            $user = User::where('email', $request->email)
             ->where('verified_email', 0)
             ->first();
 
@@ -208,7 +205,6 @@ class AuthController extends Controller
                 return response()->json([
                     //hour*seconds
                     'user' => $user,
-                    "uservalid"=>true
 
 
                 ]);

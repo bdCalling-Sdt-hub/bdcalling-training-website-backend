@@ -26,7 +26,7 @@ class MentorController extends Controller
 
      return response()->json([
          "message"=>"All mentors retrived successfully",
-         "data"=>$allMentor
+         "data"=>$allMentor->shuffle()
         ],200);
 
     }else{
