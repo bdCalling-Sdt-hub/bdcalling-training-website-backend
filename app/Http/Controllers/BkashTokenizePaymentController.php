@@ -155,9 +155,11 @@ class BkashTokenizePaymentController extends Controller
             //return BkashPaymentTokenize::failure($response['statusMessage']);
             return Redirect::away('https://bdcallingacademy.com/payment/status/failed');
         } else if ($request->status == 'cancel') {
-            return BkashPaymentTokenize::cancel('Your payment is canceled');
+            //return BkashPaymentTokenize::cancel('Your payment is canceled');
+            return Redirect::away('https://bdcallingacademy.com/payment/status/failed');
         } else {
-            return BkashPaymentTokenize::failure('Your transaction is failed');
+            //return BkashPaymentTokenize::failure('Your transaction is failed');
+            return Redirect::away('https://bdcallingacademy.com/payment/status/failed');
         }
     }
 
