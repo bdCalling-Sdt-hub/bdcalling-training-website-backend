@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
+use App\Models\Orders;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 
@@ -445,6 +446,36 @@ public function showAllCourseForSuperAdmin(Request $request)
             return response()->json(["message" => "You are unauthorized"], 401);
         }
     }
+
+
+    public function coursesByMentorId(){
+        $user = Auth::guard('api')->user();
+        if($user){
+            $courses = Course::whereJsonContains('mentorId', (string) $user->id)->get();
+            return response()->json(['courses' => $courses], 200);
+        }else{
+            return response()->json(["message" => "You are unauthorized"], 401);
+        }
+
+    }
+
+
+    public function individualCoursesStudentForThisMentor($id){
+
+        $user = Auth::guard('api')->user();
+        if($user){
+
+          $allStudent=Orders::where("course_id",$id)->get();
+          return response()->json(['courses' => $allStudent], 200);
+
+        }else{
+           return response()->json(["message" => "You are unauthorized"], 401);
+        }
+       //return $id;
+
+    }
+
+
 
 
 

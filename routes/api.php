@@ -136,6 +136,11 @@ Route::group([
     Route::delete("/course/{courseId}", [CourseController::class, 'deleteCourse']);
     Route::get("/course/{id}", [CourseController::class, 'showIndividualCourse']);
 
+
+
+    Route::get("/course/by/mentor/id",[CourseController::class,'coursesByMentorId']);
+    Route::get("/course/{id}/by/mentor/id",[CourseController::class,'individualCoursesStudentForThisMentor']);
+
     //class api
 
     Route::post("/class", [ClassController::class, 'addClass']);
